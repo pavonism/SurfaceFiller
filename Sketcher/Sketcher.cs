@@ -30,10 +30,40 @@ namespace SketcherControl
             }
         }
 
-        public float SunLocationX { get; set; } = 0.5f;
-        public float SunLocationY { get; set; } = 0.5f;
-        public float SunLocationZ { get; set; } = 0.5f;
+        public float SunLocationX
+        {
+            get => this.sunLocationX;
+            set
+            {
+                this.sunLocationX = value;
+                this.xSun = (int)(this.Width * value);
+                this.fiSun = 0;
+                Refresh();
+            }
+        } 
+        public float SunLocationY
+        {
+            get => this.sunLocationY;
+            set
+            {
+                this.sunLocationY = value;
+                this.ySun = (int)(this.Height * (1 - value));
+                this.fiSun = 0;
+                Refresh();
+            }
+        }
+        public float SunLocationZ
+        {
+            get => this.sunLocationZ;
+            set
+            {
+                this.sunLocationZ = value;
+                Refresh();
+            }
+        }
 
+
+        private float sunLocationX = 0.5f, sunLocationY = 0.5f, sunLocationZ = 0.5f;
 
         float fiSun = 0;
         int xSun;
@@ -55,6 +85,7 @@ namespace SketcherControl
         }
 
         public bool ShowLines { get; set; } = true;
+        public Color SunColor { get; set; } = Color.White;
 
         public Sketcher()
         {
@@ -147,7 +178,8 @@ namespace SketcherControl
 
             using (var g = Graphics.FromImage(this.canvas.Bitmap))
             {
-                g.DrawString(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold), Brushes.Gold, xSun - size.Width / 2, ySun - size.Height / 2);
+                var brush = SunColor == Color.White ? Brushes.Gold : new SolidBrush(SunColor);
+                g.DrawString(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, ySun - size.Height / 2);
             }
 
             base.Refresh();

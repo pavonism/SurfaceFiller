@@ -1,6 +1,8 @@
 ﻿using SketcherControl;
 using SurfaceFiller.Components;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SurfaceFiller
 {
@@ -24,6 +26,7 @@ namespace SurfaceFiller
             this.toolbar.AddButton(OpenFileHandler, "📂", string.Empty);
             this.toolbar.AddTool(FillHandler, "🪣", string.Empty);
             this.toolbar.AddTool(SunHandler, "☀", string.Empty);
+            this.toolbar.AddButton(ColorButton, "🎨", string.Empty);
             this.toolbar.AddDivider();
             this.toolbar.AddOption("Hide lines", ShowLinesHandler);
             this.toolbar.AddDivider();
@@ -38,10 +41,20 @@ namespace SurfaceFiller
             this.toolbar.AddSlider(SunYLocationHandler, "Y", 0.5f);
             this.toolbar.AddSlider(SunZLocationHandler, "Z", 0.5f);
             this.toolbar.AddDivider();
-            this.toolbar.AddLabel("Source color");
-            this.toolbar.AddColorSlider(RColorHandler, "R", 255);
-            this.toolbar.AddColorSlider(RColorHandler, "G", 255);
-            this.toolbar.AddColorSlider(RColorHandler, "B", 255);
+        }
+
+
+        private void ColorButton(object? sender, EventArgs e)
+        {
+
+            ColorDialog MyDialog = new ColorDialog();
+            MyDialog.AllowFullOpen = true;
+            MyDialog.ShowHelp = true;
+            MyDialog.Color = this.sketcher.SunColor;
+
+            // Update the text box color if the user clicks OK 
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+                this.sketcher.SunColor = MyDialog.Color;
         }
 
         private void RColorHandler(int obj)

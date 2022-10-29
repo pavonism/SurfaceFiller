@@ -34,7 +34,6 @@ namespace SurfaceFiller.Components
 
         public CheckButton()
         {
-            FlatAppearance.BorderColor = Color.FromArgb(0, 120, 215);
             this.Click += OptionChanged;
         }
     }
@@ -44,20 +43,6 @@ namespace SurfaceFiller.Components
     /// </summary>
     public class OptionButton : Button
     {
-        //protected override void OnPaint(PaintEventArgs pevent)
-        //{
-        //    var ellipseRect = new RectangleF(0, 0, Width, Height);
-
-        //    using (var path = new GraphicsPath())
-        //    {
-        //        path.AddEllipse(ellipseRect);
-        //        Region = new Region(path);
-        //    }
-
-
-        //    base.OnPaint(pevent);
-        //}
-
         public OptionButton()
         {
             Width = FormConstants.MinimumControlSize;
@@ -68,6 +53,7 @@ namespace SurfaceFiller.Components
             TextAlign = ContentAlignment.MiddleCenter;
             Font = new Font("Arial", 14);
             FlatAppearance.BorderSize = 0;
+            FlatAppearance.BorderColor = Color.FromArgb(0, 120, 215);
         }
     }
 }
