@@ -25,6 +25,13 @@ namespace SurfaceFiller
             this.toolbar.AddTool(FillHandler, "🪣", string.Empty);
             this.toolbar.AddDivider();
             this.toolbar.AddOption("Hide lines", ShowLinesHandler);
+            this.toolbar.AddDivider();
+            this.toolbar.AddLabel("Parameters");
+            this.toolbar.AddSlider("KD =");
+            this.toolbar.AddSlider("KS =");
+            this.toolbar.AddSlider("M =");
+            this.toolbar.AddSlider("Z =");
+            this.toolbar.AddDivider();
         }
 
         private void ShowLinesHandler(object? sender, EventArgs e)
@@ -51,10 +58,8 @@ namespace SurfaceFiller
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    //Get the path of specified file
                     filePath = openFileDialog.FileName;
 
-                    //Read the contents of the file into a stream
                     var fileStream = openFileDialog.OpenFile();
 
                     using (StreamReader reader = new StreamReader(fileStream))

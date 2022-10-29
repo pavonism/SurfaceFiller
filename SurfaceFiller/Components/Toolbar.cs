@@ -21,7 +21,7 @@ namespace SurfaceFiller.Components
                 Text = text,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Height = FormConstants.MinimumControlSize,
-                Anchor = AnchorStyles.None
+                Anchor = AnchorStyles.Left | AnchorStyles.Right,
             };
 
             var table = new TableLayoutPanel()
@@ -31,9 +31,6 @@ namespace SurfaceFiller.Components
             };
 
             table.Controls.Add(label);
-
-            label.Width = TextRenderer.MeasureText(text, label.Font).Width;
-            label.Left = (this.Width - label.Width) / 2; 
             Controls.Add(table);
         }
 
@@ -42,10 +39,22 @@ namespace SurfaceFiller.Components
             Controls.Add(new Divider());
         }
 
+        public void AddSlider(string labelText)
+        {
+            var slider = new Slider() 
+            { 
+                Dock = DockStyle.Top, 
+                Width = this.Width,
+                LabelText = labelText,
+            };
+
+            Controls.Add(slider);
+        }
+
         public Button AddButton(EventHandler handler, string glyph, string hint)
         {
-            var button = new OptionButton() 
-            { 
+            var button = new OptionButton()
+            {
                 Text = glyph,
                 Margin = new Padding(2, 2, 2, 2),
             };
