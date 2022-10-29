@@ -20,17 +20,31 @@ namespace SketcherControl.Shapes
         public float X { get; private set; }
         public float Y { get; private set; }
 
+
+        public float RenderX { get; private set; }
+        public float RenderY { get; private set; }
+
+
         private NormalVector normalVector;
 
         public Vertex(float x, float y)
         {
             X = x;
             Y = y;
+
+            RenderX = x;
+            RenderY = y;
         }
 
-        public void Render(DirectBitmap canvas, float scale)
+        public void SetRenderSize(float scale, float offsetX, float ofssetY)
         {
-            RectangleF rectangle = new RectangleF(X * scale + (float)canvas.Width / 2 - SketcherConstants.VertexPointRadius, Y * scale + (float)canvas.Height / 2 - SketcherConstants.VertexPointRadius,
+            RenderX = X * scale + offsetX;
+            RenderY = Y * scale + ofssetY;
+        }
+
+        public void Render(DirectBitmap canvas)
+        {
+            RectangleF rectangle = new RectangleF(RenderX - SketcherConstants.VertexPointRadius, canvas.Height - RenderY - SketcherConstants.VertexPointRadius,
                 2 * SketcherConstants.VertexPointRadius, 2 * SketcherConstants.VertexPointRadius);
 
             using (var g = Graphics.FromImage(canvas.Bitmap))

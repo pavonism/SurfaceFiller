@@ -11,17 +11,29 @@ namespace SketcherControl.Shapes
         public Vertex From;
         public Vertex To;
 
+        public float YMax => Math.Max(From.RenderY, To.RenderY);
+        public float YMin => Math.Min(From.RenderY, To.RenderY);
+        public float XMax => Math.Max(From.RenderX, To.RenderX);
+        public float XMin => Math.Min(From.RenderX, To.RenderX);
+        public float Slope { get; private set; }
+        public float DrawingX { get; set; }
+
         public Edge(Vertex from, Vertex to)
         {
             From = from;
             To = to;
+
+            var lowerVertex = From.Y < To.Y ? From : To;
+            var higherVertex = From != lowerVertex ? From : To;
+            //Slope = (To.X - From.X) / (To.Y - From.Y);
+            Slope = (higherVertex.X - lowerVertex.X) / (higherVertex.Y - lowerVertex.Y);
         }
 
-        public void Render(DirectBitmap bitmap, float scale)
+        public void Render(DirectBitmap bitmap)
         {
             using (Graphics g = Graphics.FromImage(bitmap.Bitmap))
             {
-                g.DrawLine(Pens.Black, From.X * scale + (float)bitmap.Width / 2, From.Y * scale + (float)bitmap.Height / 2, To.X * scale + (float)bitmap.Width / 2, To.Y * scale + (float)bitmap.Height / 2);
+                g.DrawLine(Pens.Black, From.RenderX, bitmap.Height - From.RenderY, To.RenderX, bitmap.Height - To.RenderY);
             }
         }
     }

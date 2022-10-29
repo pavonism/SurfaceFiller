@@ -21,6 +21,8 @@ namespace SketcherControl
             }
         }
 
+        public bool ShowLines { get; set; } = true;
+
         public Sketcher()
         {
             this.canvas = new DirectBitmap(this.Width, this.Height);
@@ -42,6 +44,7 @@ namespace SketcherControl
             }
 
             Triangle triangle = new();
+            int triangleCounter = 0;
 
             foreach (var line in lines.Where((line) => line.StartsWith("f")))
             {
@@ -52,24 +55,34 @@ namespace SketcherControl
                     var vertexIndex = face.Split("//");
                     triangle.AddVertex(vertices[int.Parse(vertexIndex[0]) - 1]);
                 }
+
                 this.triangles.Add(triangle);
+
                 triangle = new();
             }
 
+            SetRenderScale();
             Refresh();
         }
 
         public override void Refresh()
         {
-            using(var g = Graphics.FromImage(this.canvas.Bitmap))
+            using (var g = Graphics.FromImage(this.canvas.Bitmap))
             {
                 g.Clear(Color.White);
             }
 
-            foreach (var triangle in triangles)
-            {
-                triangle.Render(this.canvas, Math.Min(this.Width, this.Height) / 3, Fill);
-            }
+            if (Fill)
+                foreach (var trianle in this.triangles)
+                {
+                    ScanLine.Fill(trianle, canvas);
+                }
+
+            if (ShowLines)
+                foreach (var triangle in triangles)
+                {
+                    triangle.Render(this.canvas);
+                }
 
             base.Refresh();
         }
@@ -79,6 +92,15 @@ namespace SketcherControl
             base.OnSizeChanged(e);
 
             BitmpapSize = new Size(this.Width, this.Height);
+            SetRenderScale();
+        }
+
+        private void SetRenderScale()
+        {
+            foreach (var triangle in triangles)
+            {
+                triangle.SetRenderScale(Math.Min(canvas.Width, canvas.Height) / 3, canvas.Width / 2, canvas.Height / 2);
+            }
         }
     }
 }

@@ -22,13 +22,21 @@ namespace SurfaceFiller
             this.toolbar.AddLabel(Resources.ProgramTitle);
             this.toolbar.AddDivider();
             this.toolbar.AddButton(OpenFileHandler, "📂", string.Empty);
-            this.toolbar.AddButton(FillHandler, "🪣", string.Empty);
+            this.toolbar.AddTool(FillHandler, "🪣", string.Empty);
             this.toolbar.AddDivider();
+            this.toolbar.AddOption("Hide lines", ShowLinesHandler);
         }
 
-        private void FillHandler(object? sender, EventArgs e)
+        private void ShowLinesHandler(object? sender, EventArgs e)
         {
-            this.sketcher.Fill = true;
+            this.sketcher.ShowLines = !this.sketcher.ShowLines;
+            this.sketcher.Refresh();
+        }
+
+        private void FillHandler(bool obj)
+        {
+            this.sketcher.Fill = !this.sketcher.Fill;
+            this.sketcher.Refresh();
         }
 
         private void OpenFileHandler(object? sender, EventArgs e)

@@ -17,6 +17,7 @@ namespace SurfaceFiller.Components
             {
                 ticked = value;
                 BackColor = value ? Color.LightGray : Color.Transparent;
+                FlatAppearance.BorderSize = value ? 1 : 0;
             }
         }
         #endregion

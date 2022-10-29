@@ -60,16 +60,17 @@ namespace SurfaceFiller.Components
 
         public CheckButton AddTool(Action<bool> handler, string glyph, string hint)
         {
-
             var button = new CheckButton()
             {
                 Width = FormConstants.MinimumControlSize,
                 Height = FormConstants.MinimumControlSize,
-                Margin = new Padding(2, 0, 2, 0),
+                Margin = new Padding(2, 2, 2, 2),
                 Text = glyph,
             };
 
             button.OnOptionChanged += handler;
+
+
 
             var tooltip = new ToolTip();
             tooltip.SetToolTip(button, hint);
@@ -82,9 +83,17 @@ namespace SurfaceFiller.Components
             var checkBox = new CheckBox()
             {
                 Dock = DockStyle.Fill,
-                TextAlign = ContentAlignment.MiddleCenter,
+                TextAlign = ContentAlignment.MiddleLeft,
                 Text = text,
             };
+
+            var table = new TableLayoutPanel()
+            {
+                Dock = DockStyle.Top,
+                Height = checkBox.Height,
+            };
+            table.Controls.Add(checkBox);
+
 
             if (hint != null)
             {
@@ -93,7 +102,7 @@ namespace SurfaceFiller.Components
             }
 
             checkBox.CheckedChanged += onOptionChanged;
-            Controls.Add(checkBox);
+            Controls.Add(table);
             return checkBox;
         }
     }

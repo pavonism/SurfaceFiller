@@ -1,20 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.VisualStyles;
 
 namespace SketcherControl.Shapes
 {
-    public class Triangle 
+    public abstract class Polygon
     {
-        private readonly List<Vertex> vertices = new();
-        private readonly List<Edge> edges = new();
+        protected readonly List<Vertex> vertices = new();
+        protected readonly List<Edge> edges = new();
 
         public int VertexCount => vertices.Count;
         public int EdgesCount => this.edges.Count;
+        public IEnumerable<Edge> Edges => this.edges;
+        
+        public virtual void GetMaxPoints(out Point max, out Point min)
+        {
+            var maxPoint = new PointF(float.MinValue, float.MinValue);
+            var minPoint = new PointF(float.MaxValue, float.MaxValue);
 
+            foreach (var vertex in vertices)
+            {
+                maxPoint.X = Math.Max(maxPoint.X, vertex.RenderX);
+                maxPoint.Y = Math.Max(maxPoint.Y, vertex.RenderY);
+                minPoint.X = Math.Min(minPoint.X, vertex.RenderX);
+                minPoint.Y = Math.Min(minPoint.Y, vertex.RenderY);
+            }
+
+            max = new Point((int)Math.Ceiling(maxPoint.X), (int)Math.Ceiling(maxPoint.Y));
+            min = new Point((int)minPoint.X, (int)minPoint.Y);
+        }
+    }
+
+    public class Triangle : Polygon
+    {
         public void AddVertex(Vertex vertex)
         {
             if (vertices.Count < 3)
@@ -25,25 +47,31 @@ namespace SketcherControl.Shapes
                 }
                 if(vertices.Count == 2)
                 {
-                    this.edges.Add(new Edge(vertices.First(), vertex));
+                    this.edges.Add(new Edge(vertex, vertices.First()));
                 }
                 vertices.Add(vertex);
             }
         }
 
-        public void Render(DirectBitmap canvas, float scale, bool fill)
+        public void SetRenderScale(float scale, float offsetX, float ofssetY)
         {
             foreach (var vertex in vertices)
             {
-                vertex.Render(canvas, scale);
+                vertex.SetRenderSize(scale, offsetX, ofssetY);
+            }
+        }
+
+        public void Render(DirectBitmap canvas)
+        {
+            foreach (var vertex in vertices)
+            {
+                vertex.Render(canvas);
             }
 
             foreach (var edge in edges)
             {
-                edge.Render(canvas, scale);
+                edge.Render(canvas);
             }
-
-
         }
     }
 }

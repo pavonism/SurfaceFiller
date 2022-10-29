@@ -24,7 +24,7 @@ namespace SketcherControl
 
         public void SetPixel(int x, int y, Color colour)
         {
-            int index = x + (y * Width);
+            int index = x + ((Height - y) * Width);
             int col = colour.ToArgb();
 
             Bits[index] = col;
