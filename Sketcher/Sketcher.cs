@@ -1,4 +1,5 @@
 ﻿using SketcherControl.Shapes;
+using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl
 {
@@ -6,6 +7,38 @@ namespace SketcherControl
     {
         DirectBitmap canvas;
         private readonly List<Triangle> triangles = new();
+
+        public bool SunAnimation
+        {
+            get => timer.Enabled;
+            set
+            {
+                if (value)
+                    timer.Start();
+                else
+                    timer.Stop();
+            }
+        }
+
+        private float sunSped = 0.5f;
+        public float SunSped
+        {
+            get => sunSped;
+            set
+            {
+                this.sunSped = value;
+            }
+        }
+
+        public float SunLocationX { get; set; } = 0.5f;
+        public float SunLocationY { get; set; } = 0.5f;
+        public float SunLocationZ { get; set; } = 0.5f;
+
+
+        float fiSun = 0;
+        int xSun;
+        int ySun;
+        private Timer timer = new();
 
         public bool Fill { get; set; }
 
@@ -28,8 +61,34 @@ namespace SketcherControl
             this.canvas = new DirectBitmap(this.Width, this.Height);
             this.Dock = DockStyle.Fill;
 
+            this.xSun = this.Width;
+            this.ySun = this.Height;
             this.Image = this.canvas.Bitmap;
+            this.timer.Interval = 100;
+            this.timer.Tick += Timer_Tick;
+            timer.Start();
         }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            UpdateSunCoordinates();
+            Refresh();
+        }
+
+        private void UpdateSunCoordinates()
+        {
+            this.fiSun += SketcherConstants.MaxSunAngleIncrease * SunSped/* / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - SunLocationX, 2) + Math.Pow(ySun - SunLocationY, 2)))*/;
+            xSun = 4 * (int)(Math.Cos(fiSun) * this.fiSun) + (int)(this.Width * SunLocationX);
+            ySun = 4 * (int)(Math.Sin(fiSun) * this.fiSun) + (int)(this.Height * (1 - SunLocationY));
+
+            if (this.Width < xSun || xSun < 0 || ySun < 0 || ySun > this.Height)
+            {
+                this.fiSun = 0;
+                UpdateSunCoordinates();
+            }
+        }
+
+
 
         public void LoadObject(string shapeObject)
         {
@@ -44,7 +103,6 @@ namespace SketcherControl
             }
 
             Triangle triangle = new();
-            int triangleCounter = 0;
 
             foreach (var line in lines.Where((line) => line.StartsWith("f")))
             {
@@ -83,6 +141,14 @@ namespace SketcherControl
                 {
                     triangle.Render(this.canvas);
                 }
+
+            var size  = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold));
+
+
+            using (var g = Graphics.FromImage(this.canvas.Bitmap))
+            {
+                g.DrawString(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold), Brushes.Gold, xSun - size.Width / 2, ySun - size.Height / 2);
+            }
 
             base.Refresh();
         }

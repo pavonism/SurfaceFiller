@@ -61,7 +61,7 @@ namespace SketcherControl
 
                     for (int xi = (int)lastEdge.DrawingX; xi < edge.DrawingX; xi++)
                     {
-                        canvas.SetPixel(xi, y + minPoint.Y, Color.Blue);
+                        canvas.SetPixel(xi, y + minPoint.Y, SketcherConstants.ThemeColor);
                     }
 
                     lastEdge = edge;

@@ -18,6 +18,8 @@ namespace SurfaceFiller
 
         public const int MainFormColumnCount = 2;
         public const int MinimumControlSize = 32;
-        public const int ToolbarWidth = 8 * MinimumControlSize;
+        public const int ToolbarWidth = 7 * MinimumControlSize;
+        public const int SliderWidth = 3 * MinimumControlSize;
+        public const int LabelWidth = 2 * MinimumControlSize;
     }
 }

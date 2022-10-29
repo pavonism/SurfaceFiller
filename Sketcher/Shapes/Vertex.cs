@@ -8,11 +8,25 @@ using System.Threading.Tasks;
 
 namespace SketcherControl.Shapes
 {
-    public struct NormalVector
+    public struct Coordinates
     {
-        public float X;
-        public float Y;
-        public float Z;
+        public Coordinates(float x, float y, float z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public Coordinates(Coordinates coordinates)
+            : this(coordinates.X, coordinates.Y, coordinates.Z) 
+        { 
+        }
+
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; } 
+
+        
     }
 
     public class Vertex
@@ -25,7 +39,7 @@ namespace SketcherControl.Shapes
         public float RenderY { get; private set; }
 
 
-        private NormalVector normalVector;
+        private Coordinates normalVector;
 
         public Vertex(float x, float y)
         {

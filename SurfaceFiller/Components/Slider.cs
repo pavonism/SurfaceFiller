@@ -1,71 +1,133 @@
-﻿using System;
+﻿using SurfaceFiller.SliderConverters;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SurfaceFiller.Components
 {
-    public class Slider : UserControl
+    public class ColorSlider : Slider<int>
     {
-        private string labelText = string.Empty;
+        public ColorSlider() : base()
+        {
+            this.trackBar.Minimum = 0;
+            this.trackBar.Maximum = 255;
+        }
+
+        public override int Value
+        {
+            get => this.trackBar.Value;
+            set => this.trackBar.Value = value;
+        }
+
+        protected override void UpdateLabelText()
+        {
+            this.valueLabel.Text = $"{this.trackBar.Value}";
+        }
+    }
+
+    public class PercentageSlider : Slider<float>
+    {
+        public PercentageSlider()
+        {
+            this.trackBar.Minimum = 0;
+            this.trackBar.Maximum = 100;
+        }
+
+        public override float Value
+        {
+            get => (float)this.trackBar.Value / 100;
+            set => this.trackBar.Value = (int)(value * 100);
+        }
+
+        protected override void UpdateLabelText()
+        {
+            this.valueLabel.Text = $"{this.trackBar.Value}%";
+        }
+    }
+
+    public abstract class Slider<T> : Slider
+    {
+        protected Slider()
+        {
+            this.trackBar.ValueChanged += TrackBar_ValueChanged;
+        }
+
+        public abstract T Value { get; set; }
+
+        public event Action<T>? ValueChanged;
+        private void TrackBar_ValueChanged(object? sender, EventArgs e)
+        {
+            UpdateLabelText();
+            this.ValueChanged?.Invoke(this.Value);
+        }
+    }
+
+    public abstract class Slider : UserControl
+    {
         public string LabelText
         {
-            get => this.labelText;
+            get => this.label.Text;
             set
             {
-                this.labelText = value;
-                UpdateLabelText();
+                this.label.Text = value;
             }
         }
 
-        private readonly TrackBar trackBar = new()
+        protected readonly TrackBar trackBar = new()
         {
-            Minimum = 0,
-            Maximum = 100,
-            MaximumSize = new Size(int.MaxValue, FormConstants.MinimumControlSize),
+            TickFrequency = 1,
+            SmallChange = 1,
+            LargeChange = 1,
+            MaximumSize = new Size(FormConstants.SliderWidth, FormConstants.MinimumControlSize),
             AutoSize = false,
             TickStyle = TickStyle.None,
         };
 
-        private readonly TableLayoutPanel mainTable = new()
+        protected readonly TableLayoutPanel mainTable = new()
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
+            ColumnCount = 3,
         };
 
-        private readonly Label label = new()
+        protected readonly Label label = new()
         {
             AutoSize = false,
+            Width = FormConstants.LabelWidth,
             TextAlign = ContentAlignment.MiddleCenter,
             Anchor = AnchorStyles.Left,
-            Font = new Font(Label.DefaultFont.Name, 11),
             Dock = DockStyle.Top,
         };
 
-        public Slider()
+        protected readonly Label valueLabel = new()
+        {
+            AutoSize = false,
+            Width = FormConstants.LabelWidth,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Anchor = AnchorStyles.Left,
+            Dock = DockStyle.Top,
+        };
+
+        protected Slider()
         {
             this.Height = FormConstants.MinimumControlSize;
             this.Margin = new Padding(0, 5, 0, 5);
 
-            this.trackBar.ValueChanged += TrackBar_ValueChanged;
             UpdateLabelText();
 
-            mainTable.Controls.Add(trackBar);
             mainTable.Controls.Add(label);
-            mainTable.SetColumn(trackBar, 0);
-            mainTable.SetColumn(label, 1);
+            mainTable.Controls.Add(trackBar);
+            mainTable.Controls.Add(valueLabel);
+
+            this.mainTable.SetColumn(label, 0);
+            this.mainTable.SetColumn(trackBar, 1);
+            this.mainTable.SetColumn(valueLabel, 2);
+
             this.Controls.Add(mainTable);
         }
 
-        private void TrackBar_ValueChanged(object? sender, EventArgs e)
-        {
-            UpdateLabelText();
-        }
-
-        private void UpdateLabelText()
-        {
-            this.label.Text = $"{LabelText} {(float)this.trackBar.Value / 100}";
-        }
+        protected abstract void UpdateLabelText();
     }
 }

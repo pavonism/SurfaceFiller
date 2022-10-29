@@ -7,7 +7,7 @@ namespace SurfaceFiller
     public partial class MainForm : Form
     {
         private TableLayoutPanel mainTableLayout = new();
-        private Toolbar toolbar = new();
+        private Toolbar toolbar = new() { Width = FormConstants.ToolbarWidth };
         private Sketcher sketcher = new();
 
         public MainForm()
@@ -23,15 +23,58 @@ namespace SurfaceFiller
             this.toolbar.AddDivider();
             this.toolbar.AddButton(OpenFileHandler, "📂", string.Empty);
             this.toolbar.AddTool(FillHandler, "🪣", string.Empty);
+            this.toolbar.AddTool(SunHandler, "☀", string.Empty);
             this.toolbar.AddDivider();
             this.toolbar.AddOption("Hide lines", ShowLinesHandler);
             this.toolbar.AddDivider();
-            this.toolbar.AddLabel("Parameters");
-            this.toolbar.AddSlider("KD =");
-            this.toolbar.AddSlider("KS =");
-            this.toolbar.AddSlider("M =");
-            this.toolbar.AddSlider("Z =");
+            this.toolbar.AddLabel("Light Parameters");
+            this.toolbar.AddSlider(KDParameterHandler, "KD =", 0);
+            this.toolbar.AddSlider(KDParameterHandler, "KS =", 0);
+            this.toolbar.AddSlider(KDParameterHandler, "M =", 0);
             this.toolbar.AddDivider();
+            this.toolbar.AddLabel("Sun Parameters");
+            this.toolbar.AddSlider(SunSpeedHanlder, "Speed", 0.5f);
+            this.toolbar.AddSlider(SunXLocationHandler, "X", 0.5f);
+            this.toolbar.AddSlider(SunYLocationHandler, "Y", 0.5f);
+            this.toolbar.AddSlider(SunZLocationHandler, "Z", 0.5f);
+            this.toolbar.AddDivider();
+            this.toolbar.AddLabel("Source color");
+            this.toolbar.AddColorSlider(RColorHandler, "R", 255);
+            this.toolbar.AddColorSlider(RColorHandler, "G", 255);
+            this.toolbar.AddColorSlider(RColorHandler, "B", 255);
+        }
+
+        private void RColorHandler(int obj)
+        {
+        }
+
+        private void SunZLocationHandler(float newValue)
+        {
+            this.sketcher.SunLocationZ = newValue;
+        }
+
+        private void SunYLocationHandler(float newValue)
+        {
+            this.sketcher.SunLocationY = newValue;
+        }
+
+        private void SunXLocationHandler(float newValue)
+        {
+            this.sketcher.SunLocationX = newValue;
+        }
+
+        private void SunSpeedHanlder(float newValue)
+        {
+            this.sketcher.SunSped = newValue;
+        }
+
+        private void KDParameterHandler(float newValue)
+        {
+        }
+
+        private void SunHandler(bool obj)
+        {
+            this.sketcher.SunAnimation = !this.sketcher.SunAnimation;
         }
 
         private void ShowLinesHandler(object? sender, EventArgs e)
@@ -83,8 +126,8 @@ namespace SurfaceFiller
         {
             this.mainTableLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
             this.mainTableLayout.ColumnCount = FormConstants.MainFormColumnCount;
-            this.mainTableLayout.ColumnStyles.Add(new ColumnStyle() { Width = FormConstants.ToolbarWidth });
-            this.mainTableLayout.RowStyles.Add(new ColumnStyle() { SizeType = SizeType.AutoSize });
+            //this.mainTableLayout.ColumnStyles.Add(new ColumnStyle() { Width = FormConstants.ToolbarWidth });
+            //this.mainTableLayout.ColumnStyles.Add(new ColumnStyle() { Width = 1, SizeType = SizeType.AutoSize });
 
             this.mainTableLayout.Controls.Add(this.sketcher, 1, 0);
             this.mainTableLayout.Controls.Add(this.toolbar, 0, 0);

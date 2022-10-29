@@ -39,16 +39,31 @@ namespace SurfaceFiller.Components
             Controls.Add(new Divider());
         }
 
-        public void AddSlider(string labelText)
+        private T AddSlider<T>(string labelText, float defaultValue = 0) where T : Slider, new()
         {
-            var slider = new Slider() 
-            { 
-                Dock = DockStyle.Top, 
+            var slider = new T()
+            {
+                Dock = DockStyle.Top,
                 Width = this.Width,
                 LabelText = labelText,
             };
 
             Controls.Add(slider);
+            return slider;
+        }
+
+        public void AddColorSlider(Action<int> handler, string labelText, int defaultValue = 0)
+        {
+            var slider = AddSlider<ColorSlider>(labelText, defaultValue);
+            slider.ValueChanged += handler;
+            slider.Value = defaultValue;
+        }
+
+        public void AddSlider(Action<float> handler, string labelText, float defaultValue = 0)
+        {
+            var slider = AddSlider<PercentageSlider>(labelText, defaultValue);
+            slider.ValueChanged += handler;
+            slider.Value = defaultValue;
         }
 
         public Button AddButton(EventHandler handler, string glyph, string hint)

@@ -16,7 +16,7 @@ namespace SurfaceFiller.Components
             set
             {
                 ticked = value;
-                BackColor = value ? Color.LightGray : Color.Transparent;
+                BackColor = value ? Color.FromArgb(50, 0, 120, 215) : Color.Transparent;
                 FlatAppearance.BorderSize = value ? 1 : 0;
             }
         }
@@ -34,7 +34,7 @@ namespace SurfaceFiller.Components
 
         public CheckButton()
         {
-
+            FlatAppearance.BorderColor = Color.FromArgb(0, 120, 215);
             this.Click += OptionChanged;
         }
     }
