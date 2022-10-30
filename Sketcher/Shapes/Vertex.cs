@@ -13,6 +13,8 @@ namespace SketcherControl.Shapes
         public float RenderY { get; private set; }
         public Color Color { get; set; }
 
+        public event Action? RenderCoordinatesChanged;
+
         public Vertex(float x, float y, float z)
         {
             Location.X = x;
@@ -27,6 +29,8 @@ namespace SketcherControl.Shapes
         {
             RenderX = Location.X * scale + offsetX;
             RenderY = Location.Y * scale + ofssetY;
+
+            RenderCoordinatesChanged?.Invoke();
         }
 
         public void Render(DirectBitmap canvas)

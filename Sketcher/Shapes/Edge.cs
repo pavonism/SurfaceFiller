@@ -17,6 +17,7 @@ namespace SketcherControl.Shapes
         public float XMin => Math.Min(From.RenderX, To.RenderX);
         public float Slope { get; private set; }
         public float DrawingX { get; set; }
+        public float Length => (float)Math.Sqrt(Math.Pow(From.RenderX - To.RenderX, 2) + Math.Pow(From.RenderY - To.RenderY, 2));
 
         public Edge(Vertex from, Vertex to)
         {

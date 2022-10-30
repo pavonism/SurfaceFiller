@@ -97,7 +97,7 @@ namespace SketcherControl.Filling
             foreach (var vertex in vertices)
             {
                 Vector L = !(this.lightSource.Location - vertex.Location);
-                Vector R = (2 * vertex.NormalVector & L) * vertex.NormalVector - L;
+                Vector R = !((2 * vertex.NormalVector & L) * vertex.NormalVector - L);
 
                 var angleNL = vertex.NormalVector & L;
                 if (angleNL < 0) angleNL = 0;
@@ -109,25 +109,49 @@ namespace SketcherControl.Filling
             }
         }
 
-        public Color GetColor(IEnumerable<Vertex> vertices, float x, float y)
+        public Color GetColor(Polygon polygon, int x, int y)
         {
-            if (vertices.Count() != 3)
+            if (polygon.VertexCount < 3)
                 return Color.Empty;
 
-            var pixelLocation = new Vector(x, y, 0);
-            var vertex = vertices.ToArray();
-            var wholeArea = ((vertex[1].RenderLocation - vertex[0].RenderLocation) | (vertex[2].RenderLocation - vertex[0].RenderLocation)).Length / 2;
-            var coefficients = new float[vertex.Length];
+            float[]? coefficients;
 
-            for (int i = 0; i < vertex.Length; i++)
+            if (!polygon.CoefficientsCache.TryGetValue((x, y), out coefficients))
             {
-                var smallArea = ((vertex[i].RenderLocation - pixelLocation) | (vertex[(i + 1) % vertex.Length].RenderLocation - pixelLocation)).Length / 2;
-                coefficients[i] = smallArea / wholeArea;
+                var pixelLocation = new Vector(x, y, 0);
+                coefficients = new float[polygon.VertexCount];
+                for (int i = 0; i < polygon.Vertices.Length; i++)
+                {
+                    var a = (polygon.Vertices[i].RenderLocation - pixelLocation).Length;
+                    var b = (polygon.Vertices[(i + 1) % polygon.VertexCount].RenderLocation - pixelLocation).Length;
+                    var c = (polygon.Vertices[i].RenderLocation - polygon.Vertices[(i + 1) % polygon.VertexCount].RenderLocation).Length;
+                    var s = (a + b + c) / 2;
+                    var smallArea = (float)Math.Sqrt(s * (s - a) * (s - b) * (s - c));
+                    //var smallArea = ((vertex[i].RenderLocation - pixelLocation) | (vertex[(i + 1) % vertex.Length].RenderLocation - pixelLocation)).Length / 2;
+                    coefficients[i] = smallArea / polygon.Area / 255;
+
+                    if (s * (s - a) * (s - b) * (s - c) < 0)
+                        coefficients[i] = 0;
+                }
+
+                polygon.CoefficientsCache.Add((x, y), coefficients);
             }
 
-            Vector color = vertex[0].Color.ToVector() * coefficients[0] + vertex[1].Color.ToVector() * coefficients[1] + vertex[2].Color.ToVector() * coefficients[2];
+            var rc = polygon.Vertices[0].Color.R * coefficients[0] + polygon.Vertices[1].Color.R * coefficients[1] + polygon.Vertices[2].Color.R * coefficients[2];
+            var gc = polygon.Vertices[0].Color.G * coefficients[0] + polygon.Vertices[1].Color.G * coefficients[1] + polygon.Vertices[2].Color.G * coefficients[2];
+            var bc = polygon.Vertices[0].Color.B * coefficients[0] + polygon.Vertices[1].Color.B * coefficients[1] + polygon.Vertices[2].Color.B * coefficients[2];
 
-            return color.ToColor();
+            if (rc < 0) rc = 0;
+            if (rc > 1) rc = 1;
+            if (gc < 0) gc = 0;
+            if (gc > 1) gc = 1;
+            if (bc < 0) bc = 0;
+            if (bc > 1) bc = 1;
+
+            return Color.FromArgb((int)(rc * 255), (int)(gc * 255), (int)(bc * 255));
+            //Vector color = vertex[0].Color.ToVector() * coefficients[0] + vertex[1].Color.ToVector() * coefficients[1] + vertex[2].Color.ToVector() * coefficients[2];
+
+            //return color.ToColor();
         }
     }
 }

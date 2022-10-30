@@ -22,7 +22,7 @@ namespace SketcherControl.Filling
         private bool showTrack;
         private Timer timer = new();
 
-        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, lightLocationZ);
+        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, 1f + 5f*lightLocationZ);
 
         public bool ShowTrack
         {

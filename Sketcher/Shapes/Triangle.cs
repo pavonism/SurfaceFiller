@@ -11,20 +11,21 @@ namespace SketcherControl.Shapes
 {
     public abstract class Polygon
     {
-        protected readonly List<Vertex> vertices = new();
+        public Vertex[] Vertices { get; protected set; } = new Vertex[0];
         protected readonly List<Edge> edges = new();
 
-        public int VertexCount => vertices.Count;
+        public int VertexCount { get; protected set; }
         public int EdgesCount => this.edges.Count;
         public IEnumerable<Edge> Edges => this.edges;
-        public IEnumerable<Vertex> Vertices => this.vertices;
-        
+        public float Area { get; protected set; }
+        public readonly Dictionary<(int, int), float[]> CoefficientsCache = new();
+
         public virtual void GetMaxPoints(out Point max, out Point min)
         {
             var maxPoint = new PointF(float.MinValue, float.MinValue);
             var minPoint = new PointF(float.MaxValue, float.MaxValue);
 
-            foreach (var vertex in vertices)
+            foreach (var vertex in Vertices)
             {
                 maxPoint.X = Math.Max(maxPoint.X, vertex.RenderX);
                 maxPoint.Y = Math.Max(maxPoint.Y, vertex.RenderY);
@@ -39,28 +40,42 @@ namespace SketcherControl.Shapes
 
     public class Triangle : Polygon
     {
+        public Triangle()
+        {
+            this.Vertices = new Vertex[3];
+        }
+
         public void AddVertex(Vertex vertex, Vector? normalVector = null)
         {
             if (normalVector.HasValue)
                 vertex.NormalVector = !-normalVector.Value;
 
-            if (vertices.Count < 3)
+            if (VertexCount < 3)
             {
-                if(vertices.Any())
+                if(VertexCount > 0)
                 {
-                    this.edges.Add(new Edge(vertices.Last(), vertex));
+                    this.edges.Add(new Edge(Vertices[VertexCount - 1], vertex));
                 }
-                if(vertices.Count == 2)
+                if(VertexCount == 2)
                 {
-                    this.edges.Add(new Edge(vertex, vertices.First()));
+                    this.edges.Add(new Edge(vertex, Vertices[0]));
                 }
-                vertices.Add(vertex);
+                Vertices[VertexCount] = vertex;
             }
+
+            VertexCount++;
+            vertex.RenderCoordinatesChanged += RenderCoordinatesChangedHandler;
+        }
+
+        private void RenderCoordinatesChangedHandler()
+        {
+            Area = ((Vertices[1].RenderLocation - Vertices[0].RenderLocation) | (Vertices[2].RenderLocation - Vertices[0].RenderLocation)).Length / 2;
+            CoefficientsCache.Clear();
         }
 
         public void SetRenderScale(float scale, float offsetX, float ofssetY)
         {
-            foreach (var vertex in vertices)
+            foreach (var vertex in Vertices)
             {
                 vertex.SetRenderSize(scale, offsetX, ofssetY);
             }
@@ -68,7 +83,7 @@ namespace SketcherControl.Shapes
 
         public void Render(DirectBitmap canvas)
         {
-            foreach (var vertex in vertices)
+            foreach (var vertex in Vertices)
             {
                 vertex.Render(canvas);
             }

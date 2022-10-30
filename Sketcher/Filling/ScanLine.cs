@@ -61,7 +61,8 @@ namespace SketcherControl.Filling
 
                     for (int xi = (int)lastEdge.DrawingX; xi < edge.DrawingX; xi++)
                     {
-                        canvas.SetPixel(xi, y + minPoint.Y, colorPicker.GetColor(polygon.Vertices, xi, y + minPoint.Y));
+                        var color = colorPicker.GetColor(polygon, xi, y + minPoint.Y);
+                        canvas.SetPixel(xi, y + minPoint.Y, color);
                     }
 
                     lastEdge = edge;
