@@ -32,7 +32,7 @@ namespace SketcherControl
 
         public Color GetPixel(int x, int y)
         {
-            int index = x + (y * Width);
+            int index = x + ((Height - y) * Width);
             int col = Bits[index];
             Color result = Color.FromArgb(col);
 

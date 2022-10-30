@@ -40,7 +40,7 @@ namespace SketcherControl
                 this.fiSun = 0;
                 Refresh();
             }
-        } 
+        }
         public float SunLocationY
         {
             get => this.sunLocationY;
@@ -91,11 +91,10 @@ namespace SketcherControl
         {
             this.canvas = new DirectBitmap(this.Width, this.Height);
             this.Dock = DockStyle.Fill;
-
             this.xSun = this.Width;
             this.ySun = this.Height;
             this.Image = this.canvas.Bitmap;
-            this.timer.Interval = 100;
+            this.timer.Interval = 16;
             this.timer.Tick += Timer_Tick;
             timer.Start();
         }
@@ -108,7 +107,8 @@ namespace SketcherControl
 
         private void UpdateSunCoordinates()
         {
-            this.fiSun += SketcherConstants.MaxSunAngleIncrease * SunSped/* / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - SunLocationX, 2) + Math.Pow(ySun - SunLocationY, 2)))*/;
+            var omega = SketcherConstants.MaxSunAngleIncrease * SunSped / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - this.Width * SunLocationX, 2) + Math.Pow(ySun - this.Height * (1 - SunLocationY), 2)));
+            this.fiSun += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
             xSun = 4 * (int)(Math.Cos(fiSun) * this.fiSun) + (int)(this.Width * SunLocationX);
             ySun = 4 * (int)(Math.Sin(fiSun) * this.fiSun) + (int)(this.Height * (1 - SunLocationY));
 
@@ -173,14 +173,14 @@ namespace SketcherControl
                     triangle.Render(this.canvas);
                 }
 
-            var size  = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold));
 
 
-            using (var g = Graphics.FromImage(this.canvas.Bitmap))
-            {
-                var brush = SunColor == Color.White ? Brushes.Gold : new SolidBrush(SunColor);
-                g.DrawString(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, ySun - size.Height / 2);
-            }
+                using (var g = Graphics.FromImage(this.canvas.Bitmap))
+                {
+                    var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold));
+                    var brush = SunColor == Color.White ? Brushes.Gold : new SolidBrush(SunColor);
+                    g.DrawString(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, this.canvas.Height - (ySun - size.Height / 2));
+                }
 
             base.Refresh();
         }
