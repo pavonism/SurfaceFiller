@@ -27,6 +27,8 @@ namespace SurfaceFiller
             this.toolbar.AddTool(FillHandler, "🪣", string.Empty);
             this.toolbar.AddTool(SunHandler, "☀", string.Empty);
             this.toolbar.AddButton(ColorButton, "🎨", string.Empty);
+            this.toolbar.AddTool(ShowTrackHandler, "T", string.Empty);
+            this.toolbar.AddButton(ResetPositionButton, "R", string.Empty);
             this.toolbar.AddDivider();
             this.toolbar.AddOption("Hide lines", ShowLinesHandler);
             this.toolbar.AddDivider();
@@ -43,6 +45,15 @@ namespace SurfaceFiller
             this.toolbar.AddDivider();
         }
 
+        private void ResetPositionButton(object? sender, EventArgs e)
+        {
+            this.sketcher.LightSource.Reset();
+        }
+
+        private void ShowTrackHandler(bool obj)
+        {
+            this.sketcher.LightSource.ShowTrack = !this.sketcher.LightSource.ShowTrack;
+        }
 
         private void ColorButton(object? sender, EventArgs e)
         {
@@ -63,17 +74,17 @@ namespace SurfaceFiller
 
         private void SunZLocationHandler(float newValue)
         {
-            this.sketcher.LightSource.SunLocationZ = newValue;
+            this.sketcher.LightSource.LightLocationZ = newValue;
         }
 
         private void SunYLocationHandler(float newValue)
         {
-            this.sketcher.LightSource.SunLocationY = newValue;
+            this.sketcher.LightSource.LightLocationY = newValue;
         }
 
         private void SunXLocationHandler(float newValue)
         {
-            this.sketcher.LightSource.SunLocationX = newValue;
+            this.sketcher.LightSource.LightLocationX = newValue;
         }
 
         private void SunSpeedHanlder(float newValue)
