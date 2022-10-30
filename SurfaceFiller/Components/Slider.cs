@@ -11,7 +11,7 @@ namespace SurfaceFiller.Components
 
         public override float Value
         {
-            get => this.trackBar.Value / 100;
+            get => (float)this.trackBar.Value / 100;
             set => this.trackBar.Value = (int)(value * 100);
         }
 

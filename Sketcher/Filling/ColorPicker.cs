@@ -7,11 +7,11 @@ namespace SketcherControl.Filling
     {
         public event Action? ParametersChanged;
 
-        private Color targetColor;
+        private Color targetColor = SketcherConstants.ThemeColor;
         private Color lightSourceColor;
-        private float kD;
-        private float kS;
-        private int m;
+        private float kD = 0.5f;
+        private float kS = 0.5f;
+        private int m = 4;
 
         public float KD
         {
@@ -87,25 +87,47 @@ namespace SketcherControl.Filling
             this.lightSource = lightSource;
         }
 
-        public void StartFillingTriangle(List<Vertex> vertices, Color objectColor)
+        public void StartFillingTriangle(IEnumerable<Vertex> vertices)
         {
             verticesColors.Clear();
 
             Vector IL = this.lightSource.LightSourceColor.ToVector();
-            Vector IO = objectColor.ToVector();
+            Vector IO = TargetColor.ToVector();
 
             foreach (var vertex in vertices)
             {
-                Vector L = !this.lightSource.CanvasCoordinates - vertex.Location;
-                Vector R = 2 * vertex.NormalVector * L * vertex.NormalVector - L;
+                Vector L = !(this.lightSource.Location - vertex.Location);
+                Vector R = (2 * vertex.NormalVector & L) * vertex.NormalVector - L;
 
+                var angleNL = vertex.NormalVector & L;
+                if (angleNL < 0) angleNL = 0;
+
+                var angleVR = v & R;
+                if (angleVR < 0) angleVR = 0;
+
+                vertex.Color = ((KD * IL * IO * angleNL) + (KS * IL * IO * (float)Math.Pow(angleVR, m))).ToColor();
             }
         }
 
-        public Color GetColor()
+        public Color GetColor(IEnumerable<Vertex> vertices, float x, float y)
         {
+            if (vertices.Count() != 3)
+                return Color.Empty;
 
-            return Color.Empty;
+            var pixelLocation = new Vector(x, y, 0);
+            var vertex = vertices.ToArray();
+            var wholeArea = ((vertex[1].RenderLocation - vertex[0].RenderLocation) | (vertex[2].RenderLocation - vertex[0].RenderLocation)).Length / 2;
+            var coefficients = new float[vertex.Length];
+
+            for (int i = 0; i < vertex.Length; i++)
+            {
+                var smallArea = ((vertex[i].RenderLocation - pixelLocation) | (vertex[(i + 1) % vertex.Length].RenderLocation - pixelLocation)).Length / 2;
+                coefficients[i] = smallArea / wholeArea;
+            }
+
+            Vector color = vertex[0].Color.ToVector() * coefficients[0] + vertex[1].Color.ToVector() * coefficients[1] + vertex[2].Color.ToVector() * coefficients[2];
+
+            return color.ToColor();
         }
     }
 }

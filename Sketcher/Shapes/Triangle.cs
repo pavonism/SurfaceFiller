@@ -17,6 +17,7 @@ namespace SketcherControl.Shapes
         public int VertexCount => vertices.Count;
         public int EdgesCount => this.edges.Count;
         public IEnumerable<Edge> Edges => this.edges;
+        public IEnumerable<Vertex> Vertices => this.vertices;
         
         public virtual void GetMaxPoints(out Point max, out Point min)
         {
@@ -41,7 +42,7 @@ namespace SketcherControl.Shapes
         public void AddVertex(Vertex vertex, Vector? normalVector = null)
         {
             if (normalVector.HasValue)
-                vertex.NormalVector = !normalVector.Value;
+                vertex.NormalVector = !-normalVector.Value;
 
             if (vertices.Count < 3)
             {

@@ -22,6 +22,8 @@ namespace SketcherControl.Filling
         private bool showTrack;
         private Timer timer = new();
 
+        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, lightLocationZ);
+
         public bool ShowTrack
         {
             get => this.showTrack;
@@ -120,7 +122,7 @@ namespace SketcherControl.Filling
             this.xSun = Renderer.Size.Width;
             this.ySun = Renderer.Size.Height;
 
-            this.timer.Interval = 16;
+            this.timer.Interval = 32;
             this.timer.Tick += Timer_Tick;
             timer.Start();
         }
@@ -132,23 +134,23 @@ namespace SketcherControl.Filling
                 {
                     var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold));
                     var brush = LightSourceColor == Color.White ? Brushes.Gold : new SolidBrush(LightSourceColor);
-                    g.DrawString(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, canvas.Height - (ySun + size.Height / 2));
+                    g.DrawString(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, ySun - size.Height / 2);
                 }
 
             if (ShowTrack)
             {
                 float currentAngle = 0f;
-                int currentXLight = (int)(LightLocationX * Renderer.Size.Width), currentYLight = (int)(Renderer.Size.Height * (1 - LightLocationY));
+                int currentXLight = (int)(LightLocationX * Renderer.Size.Width), currentYLight = (int)(Renderer.Size.Height * LightLocationY);
                 while (currentAngle < this.lightAngle)
                 {
                     var omega = SketcherConstants.MaxSunAngleIncrease * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(currentXLight - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(currentYLight - Renderer.Size.Height * (1 - LightLocationY), 2)));
                     currentAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
                     currentXLight = 4 * (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
-                    currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * (1 - LightLocationY));
+                    currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * LightLocationY);
 
                     if (Renderer.Size.Width <= currentXLight || currentXLight <= 0 || currentYLight <= 0 || currentYLight >= Renderer.Size.Height)
                         continue;
-                    canvas.SetPixel(currentXLight, currentYLight, LightSourceColor == Color.White ? Color.Gold : LightSourceColor);
+                    canvas.SetPixel(currentXLight, canvas.Height - currentYLight, LightSourceColor == Color.White ? Color.Gold : LightSourceColor);
                 }
             }
         }
@@ -161,7 +163,7 @@ namespace SketcherControl.Filling
 
         private void MoveLight()
         {
-            var omega = SketcherConstants.MaxSunAngleIncrease * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(ySun - Renderer.Size.Height * (1 - LightLocationY), 2)));
+            var omega = SketcherConstants.MaxSunAngleIncrease * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(ySun - Renderer.Size.Height * LightLocationY, 2)));
             this.lightAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
             RecalculateLightCoordinates();
         }
@@ -169,7 +171,7 @@ namespace SketcherControl.Filling
         private void RecalculateLightCoordinates()
         {
             xSun = 4 * (int)(Math.Cos(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Width * LightLocationX);
-            ySun = 4 * (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * (1 - LightLocationY));
+            ySun = 4 * (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * LightLocationY);
         }
 
         public void Reset()

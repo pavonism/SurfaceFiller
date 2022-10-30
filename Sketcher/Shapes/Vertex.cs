@@ -7,6 +7,7 @@ namespace SketcherControl.Shapes
     {
         public Vector Location;
         public Vector NormalVector { get; set; }
+        public Vector RenderLocation => new Vector(RenderX, RenderY, 0);
 
         public float RenderX { get; private set; }
         public float RenderY { get; private set; }

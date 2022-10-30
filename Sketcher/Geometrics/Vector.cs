@@ -20,7 +20,7 @@ namespace SketcherControl.Geometrics
 
 
         #region Operators
-        public static float operator *(Vector v1, Vector v2)
+        public static float operator&(Vector v1, Vector v2)
         {
             return v1.X * v2.X + v1.Y * v2.X + v1.Z * v2.Z;
         }
@@ -28,6 +28,28 @@ namespace SketcherControl.Geometrics
         public static Vector operator *(float number, Vector vector)
         {
             return new Vector(vector.X * number, vector.Y * number, vector.Z * number);
+        }
+
+        public static Vector operator *(Vector vector, float number)
+        {
+            return new Vector(vector.X * number, vector.Y * number, vector.Z * number);
+        }
+
+        public static Vector operator *(Vector v1, Vector v2)
+        {
+            return new Vector(v1.X*v2.X, v1.Y*v2.Y, v1.Z*v2.Z);
+        }
+
+        public static Vector operator ^(Vector vector, int power)
+        {
+            var result = new Vector(1,1,1);
+
+            for (int i = 0; i < power; i++)
+            {
+                result *= vector;
+            }
+
+            return result;
         }
 
         public static Vector operator /(Vector vector, float number)
@@ -68,6 +90,11 @@ namespace SketcherControl.Geometrics
             return v1 / v1.Length;
         }
 
+        public static Vector operator|(Vector v1, Vector v2)
+        {
+            return new Vector(v1.Y * v2.Z - v1.Z *v2.Y, v1.Z*v2.X - v1.X*v2.Z, v1.X*v2.Y - v1.Y*v2.X);
+        }
+
         public override bool Equals(object? obj)
         {
             return GetHashCode() == obj?.GetHashCode();
@@ -89,7 +116,7 @@ namespace SketcherControl.Geometrics
 
         public static Color ToColor(this Vector vector)
         {
-            return Color.FromArgb((int)Math.Min(vector.X * 255, 255), (int)Math.Min(vector.Y * 255, 255), (int)Math.Min(vector.Z * 255, 255));
+            return Color.FromArgb((int)Math.Min(Math.Max(0, vector.X) * 255, 255), (int)Math.Min(Math.Max(0, vector.Y) * 255, 255), (int)Math.Min(Math.Max(0, vector.Z) * 255, 255));
         }
     }
 }

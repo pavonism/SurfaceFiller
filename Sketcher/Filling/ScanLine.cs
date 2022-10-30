@@ -22,8 +22,9 @@ namespace SketcherControl.Filling
             return sortedEdges;
         }
 
-        public static void Fill(Polygon polygon, DirectBitmap canvas)
+        public static void Fill(Polygon polygon, DirectBitmap canvas, ColorPicker colorPicker)
         {
+            colorPicker.StartFillingTriangle(polygon.Vertices);
             polygon.GetMaxPoints(out var maxPoint, out var minPoint);
 
             var ET = BucketSort(polygon, minPoint.Y, maxPoint.Y);
@@ -60,7 +61,7 @@ namespace SketcherControl.Filling
 
                     for (int xi = (int)lastEdge.DrawingX; xi < edge.DrawingX; xi++)
                     {
-                        canvas.SetPixel(xi, y + minPoint.Y, SketcherConstants.ThemeColor);
+                        canvas.SetPixel(xi, y + minPoint.Y, colorPicker.GetColor(polygon.Vertices, xi, y + minPoint.Y));
                     }
 
                     lastEdge = edge;

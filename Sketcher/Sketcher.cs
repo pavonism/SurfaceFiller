@@ -11,7 +11,6 @@ namespace SketcherControl
 
         public LightSource LightSource { get; private set; }
         public ColorPicker ColorPicker { get; }
-
         public bool Fill { get; set; }
 
         public Size BitmpapSize
@@ -78,7 +77,6 @@ namespace SketcherControl
                 }
 
                 this.triangles.Add(triangle);
-
                 triangle = new();
             }
 
@@ -96,7 +94,7 @@ namespace SketcherControl
             if (Fill)
                 foreach (var trianle in this.triangles)
                 {
-                    ScanLine.Fill(trianle, canvas);
+                    ScanLine.Fill(trianle, canvas, ColorPicker);
                 }
 
             if (ShowLines)
@@ -124,6 +122,16 @@ namespace SketcherControl
             {
                 triangle.SetRenderScale(Math.Min(canvas.Width, canvas.Height) / 3, canvas.Width / 2, canvas.Height / 2);
             }
+        }
+
+        public Vector Unscale(float x, float y, float z)
+        {
+            return new Vector()
+            {
+                X = (x - canvas.Width / 2) / (Math.Min(canvas.Width, canvas.Height) / 3),
+                Y = (y - canvas.Height / 2) / (Math.Min(canvas.Width, canvas.Height) / 3),
+                Z = z,
+            };
         }
     }
 }
