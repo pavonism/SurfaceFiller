@@ -5,7 +5,7 @@ namespace SketcherControl
     {
         public const float VertexPointRadius = 2;
         public const string LightSource = "☀";
-        public const float MaxSunAngleIncrease = 1500f;
+        public const float LightSourceSpeedCoefficient = 4f;
         public const float MinSunAngleIncrease = 0.1f;
 
 

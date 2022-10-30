@@ -1,6 +1,7 @@
 ﻿using SketcherControl.Filling;
 using SketcherControl.Geometrics;
 using SketcherControl.Shapes;
+using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl
 {
@@ -8,6 +9,9 @@ namespace SketcherControl
     {
         DirectBitmap canvas;
         private readonly List<Triangle> triangles = new();
+        private Timer resizeTimer;
+        private bool freeze;
+        private bool animationTurnedOn;
 
         public LightSource LightSource { get; private set; }
         public ColorPicker ColorPicker { get; }
@@ -35,8 +39,20 @@ namespace SketcherControl
             this.Dock = DockStyle.Fill;
 
             this.Image = this.canvas.Bitmap;
+            this.resizeTimer = new();
+            this.resizeTimer.Interval = 50;
+            this.resizeTimer.Tick += ResizeTimerHandler;
             LightSource.LightSourceChanged += ParametersChangedHandler;
             ColorPicker.ParametersChanged += ParametersChangedHandler;
+        }
+
+        private void ResizeTimerHandler(object? sender, EventArgs e)
+        {
+            this.resizeTimer.Stop();
+            BitmpapSize = new Size(this.Width, this.Height);
+            SetRenderScale();
+            this.LightSource.LightAnimation = this.animationTurnedOn;
+            this.freeze = false;
         }
 
         private void ParametersChangedHandler()
@@ -86,6 +102,9 @@ namespace SketcherControl
 
         public override void Refresh()
         {
+            if (freeze)
+                return;
+
             using (var g = Graphics.FromImage(this.canvas.Bitmap))
             {
                 g.Clear(Color.White);
@@ -112,8 +131,14 @@ namespace SketcherControl
         {
             base.OnSizeChanged(e);
 
-            BitmpapSize = new Size(this.Width, this.Height);
-            SetRenderScale();
+            if(!this.freeze)
+            {
+                this.freeze = true;
+                animationTurnedOn = this.LightSource.LightAnimation;
+                this.LightSource.LightAnimation = false;
+            }
+            this.resizeTimer.Stop();
+            this.resizeTimer.Start();
         }
 
         private void SetRenderScale()

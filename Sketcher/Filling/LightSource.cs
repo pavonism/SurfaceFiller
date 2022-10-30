@@ -143,7 +143,7 @@ namespace SketcherControl.Filling
                 int currentXLight = (int)(LightLocationX * Renderer.Size.Width), currentYLight = (int)(Renderer.Size.Height * LightLocationY);
                 while (currentAngle < this.lightAngle)
                 {
-                    var omega = SketcherConstants.MaxSunAngleIncrease * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(currentXLight - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(currentYLight - Renderer.Size.Height * (1 - LightLocationY), 2)));
+                    var omega = SketcherConstants.LightSourceSpeedCoefficient * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(currentXLight - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(currentYLight - Renderer.Size.Height * (1 - LightLocationY), 2)));
                     currentAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
                     currentXLight = 4 * (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
                     currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * LightLocationY);
@@ -163,7 +163,7 @@ namespace SketcherControl.Filling
 
         private void MoveLight()
         {
-            var omega = SketcherConstants.MaxSunAngleIncrease * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(ySun - Renderer.Size.Height * LightLocationY, 2)));
+            var omega = SketcherConstants.LightSourceSpeedCoefficient * Math.Min(Renderer.Size.Width, Renderer.Size.Height) * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(ySun - Renderer.Size.Height * LightLocationY, 2)));
             this.lightAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
             RecalculateLightCoordinates();
         }
