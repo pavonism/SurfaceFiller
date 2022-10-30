@@ -1,4 +1,5 @@
 ﻿using SketcherControl.Filling;
+using SketcherControl.Geometrics;
 using SketcherControl.Shapes;
 
 namespace SketcherControl
@@ -48,20 +49,20 @@ namespace SketcherControl
         {
             this.triangles.Clear();
             List<Vertex> vertices = new List<Vertex>();
-            List<Coordinates> normalVectors = new List<Coordinates>();
+            List<Vector> normalVectors = new List<Vector>();
 
             string[] lines = shapeObject.Split("\n");
 
             foreach (var line in lines.Where((line) => line.StartsWith("v ")))
             {
                 var values = line.Split(" ");
-                vertices.Add(new Vertex(float.Parse(values[1]), float.Parse(values[2])));
+                vertices.Add(new Vertex(float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
             }
 
             foreach (var line in lines.Where((line) => line.StartsWith("vn")))
             {
                 var values = line.Split(" ");
-                normalVectors.Add(new Coordinates(float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
+                normalVectors.Add(new Vector(float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
             }
 
             Triangle triangle = new();

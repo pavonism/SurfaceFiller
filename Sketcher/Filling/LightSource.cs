@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SketcherControl.Geometrics;
 using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl.Filling
@@ -14,7 +10,7 @@ namespace SketcherControl.Filling
         public event Action? LightSourceChanged;
 
         private Color lightSourceColor = Color.White;
-        
+
         /// <summary>
         /// Współrzędne względem rozmiaru bitmapy
         /// </summary>
@@ -94,10 +90,10 @@ namespace SketcherControl.Filling
             get => this.lightLocationY;
             set
             {
-                if (this.lightLocationY == value)
+                if (this.lightLocationY == 1 - value)
                     return;
 
-                this.lightLocationY = value;
+                this.lightLocationY = 1 - value;
                 RecalculateLightCoordinates();
                 this.LightSourceChanged?.Invoke();
             }
@@ -116,6 +112,8 @@ namespace SketcherControl.Filling
             }
         }
 
+        public Vector CanvasCoordinates => new Vector(xSun, ySun, LightLocationZ);
+
         public LightSource(IRenderer renderer)
         {
             this.Renderer = renderer;
@@ -129,14 +127,15 @@ namespace SketcherControl.Filling
 
         public void Render(DirectBitmap canvas)
         {
-            using (var g = Graphics.FromImage(canvas.Bitmap))
-            {
-                var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold));
-                var brush = LightSourceColor == Color.White ? Brushes.Gold : new SolidBrush(LightSourceColor);
-                g.DrawString(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, canvas.Height - (ySun + size.Height / 2));
-            }
+            if (Renderer.Size.Width > xSun && xSun > 0 && ySun > 0 && ySun < Renderer.Size.Height)
+                using (var g = Graphics.FromImage(canvas.Bitmap))
+                {
+                    var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold));
+                    var brush = LightSourceColor == Color.White ? Brushes.Gold : new SolidBrush(LightSourceColor);
+                    g.DrawString(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, canvas.Height - (ySun + size.Height / 2));
+                }
 
-            if(ShowTrack)
+            if (ShowTrack)
             {
                 float currentAngle = 0f;
                 int currentXLight = (int)(LightLocationX * Renderer.Size.Width), currentYLight = (int)(Renderer.Size.Height * (1 - LightLocationY));
@@ -147,6 +146,8 @@ namespace SketcherControl.Filling
                     currentXLight = 4 * (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
                     currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * (1 - LightLocationY));
 
+                    if (Renderer.Size.Width <= currentXLight || currentXLight <= 0 || currentYLight <= 0 || currentYLight >= Renderer.Size.Height)
+                        continue;
                     canvas.SetPixel(currentXLight, currentYLight, LightSourceColor == Color.White ? Color.Gold : LightSourceColor);
                 }
             }
@@ -169,12 +170,6 @@ namespace SketcherControl.Filling
         {
             xSun = 4 * (int)(Math.Cos(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Width * LightLocationX);
             ySun = 4 * (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * (1 - LightLocationY));
-
-            if (Renderer.Size.Width < xSun || xSun < 0 || ySun < 0 || ySun > Renderer.Size.Height)
-            {
-                this.lightAngle = 0;
-                RecalculateLightCoordinates();
-            }
         }
 
         public void Reset()

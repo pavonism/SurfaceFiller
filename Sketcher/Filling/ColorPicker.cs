@@ -1,9 +1,5 @@
-﻿using SketcherControl.Shapes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SketcherControl.Geometrics;
+using SketcherControl.Shapes;
 
 namespace SketcherControl.Filling
 {
@@ -84,18 +80,24 @@ namespace SketcherControl.Filling
 
         private readonly List<Color> verticesColors = new();
         private LightSource lightSource;
+        private Vector v = new(0, 0, 1);
 
         public ColorPicker(LightSource lightSource)
         {
             this.lightSource = lightSource;
         }
 
-        public void StartFillingTriangle(List<Vertex> vertices)
+        public void StartFillingTriangle(List<Vertex> vertices, Color objectColor)
         {
             verticesColors.Clear();
 
+            Vector IL = this.lightSource.LightSourceColor.ToVector();
+            Vector IO = objectColor.ToVector();
+
             foreach (var vertex in vertices)
             {
+                Vector L = !this.lightSource.CanvasCoordinates - vertex.Location;
+                Vector R = 2 * vertex.NormalVector * L * vertex.NormalVector - L;
 
             }
         }

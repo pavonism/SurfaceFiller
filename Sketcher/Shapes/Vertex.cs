@@ -1,50 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SketcherControl.Geometrics;
+
 
 namespace SketcherControl.Shapes
 {
-    public struct Coordinates
-    {
-        public Coordinates(float x, float y, float z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-
-        public Coordinates(Coordinates coordinates)
-            : this(coordinates.X, coordinates.Y, coordinates.Z) 
-        { 
-        }
-
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; } 
-
-        
-    }
-
     public class Vertex
     {
-        public float X { get; private set; }
-        public float Y { get; private set; }
-
+        public Vector Location;
+        public Vector NormalVector { get; set; }
 
         public float RenderX { get; private set; }
         public float RenderY { get; private set; }
+        public Color Color { get; set; }
 
-
-        public Coordinates NormalVector { get; set; }
-
-        public Vertex(float x, float y)
+        public Vertex(float x, float y, float z)
         {
-            X = x;
-            Y = y;
+            Location.X = x;
+            Location.Y = y;
+            Location.Z = z;
 
             RenderX = x;
             RenderY = y;
@@ -52,8 +24,8 @@ namespace SketcherControl.Shapes
 
         public void SetRenderSize(float scale, float offsetX, float ofssetY)
         {
-            RenderX = X * scale + offsetX;
-            RenderY = Y * scale + ofssetY;
+            RenderX = Location.X * scale + offsetX;
+            RenderY = Location.Y * scale + ofssetY;
         }
 
         public void Render(DirectBitmap canvas)

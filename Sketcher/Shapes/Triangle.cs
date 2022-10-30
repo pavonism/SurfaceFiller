@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SketcherControl.Geometrics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -37,10 +38,10 @@ namespace SketcherControl.Shapes
 
     public class Triangle : Polygon
     {
-        public void AddVertex(Vertex vertex, Coordinates? normalVector = null)
+        public void AddVertex(Vertex vertex, Vector? normalVector = null)
         {
             if (normalVector.HasValue)
-                vertex.NormalVector = normalVector.Value;
+                vertex.NormalVector = !normalVector.Value;
 
             if (vertices.Count < 3)
             {

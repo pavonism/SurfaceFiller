@@ -23,10 +23,9 @@ namespace SketcherControl.Shapes
             From = from;
             To = to;
 
-            var lowerVertex = From.Y < To.Y ? From : To;
+            var lowerVertex = From.Location.Y < To.Location.Y ? From : To;
             var higherVertex = From != lowerVertex ? From : To;
-            //Slope = (To.X - From.X) / (To.Y - From.Y);
-            Slope = (higherVertex.X - lowerVertex.X) / (higherVertex.Y - lowerVertex.Y);
+            Slope = (higherVertex.Location.X - lowerVertex.Location.X) / (higherVertex.Location.Y - lowerVertex.Location.Y);
         }
 
         public void Render(DirectBitmap bitmap)
