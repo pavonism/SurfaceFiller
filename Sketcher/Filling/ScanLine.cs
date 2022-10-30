@@ -1,7 +1,6 @@
 ﻿using SketcherControl.Shapes;
-using System.Drawing;
 
-namespace SketcherControl
+namespace SketcherControl.Filling
 {
     public class ScanLine
     {
@@ -13,7 +12,7 @@ namespace SketcherControl
             {
                 edge.DrawingX = edge.From.RenderY == edge.YMin ? edge.From.RenderX : edge.To.RenderX;
                 var index = (int)edge.YMin - minY;
-                
+
                 if (sortedEdges[index] == null)
                     sortedEdges[index] = new();
 
@@ -22,7 +21,7 @@ namespace SketcherControl
 
             return sortedEdges;
         }
-        
+
         public static void Fill(Polygon polygon, DirectBitmap canvas)
         {
             polygon.GetMaxPoints(out var maxPoint, out var minPoint);
@@ -32,7 +31,7 @@ namespace SketcherControl
             int y = 0;
             List<Edge> AET = new();
 
-            while((ETCount > 0 || AET.Count > 0) && y < maxPoint.Y - minPoint.Y)
+            while ((ETCount > 0 || AET.Count > 0) && y < maxPoint.Y - minPoint.Y)
             {
                 if (ET[y] != null)
                 {
@@ -53,7 +52,7 @@ namespace SketcherControl
 
                 foreach (var edge in AET)
                 {
-                    if(lastEdge == null)
+                    if (lastEdge == null)
                     {
                         lastEdge = edge;
                         continue;

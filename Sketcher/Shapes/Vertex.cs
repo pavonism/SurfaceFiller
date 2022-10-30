@@ -39,7 +39,7 @@ namespace SketcherControl.Shapes
         public float RenderY { get; private set; }
 
 
-        private Coordinates normalVector;
+        public Coordinates NormalVector { get; set; }
 
         public Vertex(float x, float y)
         {

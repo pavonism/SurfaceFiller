@@ -31,9 +31,9 @@ namespace SurfaceFiller
             this.toolbar.AddOption("Hide lines", ShowLinesHandler);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel("Light Parameters");
-            this.toolbar.AddSlider(KDParameterHandler, "KD =", 0);
-            this.toolbar.AddSlider(KDParameterHandler, "KS =", 0);
-            this.toolbar.AddSlider(KDParameterHandler, "M =", 0);
+            this.toolbar.AddFractSlider(KDParameterHandler, "KD =", 0.5f);
+            this.toolbar.AddFractSlider(KDParameterHandler, "KS =", 0.5f);
+            this.toolbar.AddSlider(KDParameterHandler, "M =", 0.5f);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel("Sun Parameters");
             this.toolbar.AddSlider(SunSpeedHanlder, "Speed", 0.5f);
@@ -50,11 +50,11 @@ namespace SurfaceFiller
             ColorDialog MyDialog = new ColorDialog();
             MyDialog.AllowFullOpen = true;
             MyDialog.ShowHelp = true;
-            MyDialog.Color = this.sketcher.SunColor;
+            MyDialog.Color = this.sketcher.LightSource.LightSourceColor;
 
             // Update the text box color if the user clicks OK 
             if (MyDialog.ShowDialog() == DialogResult.OK)
-                this.sketcher.SunColor = MyDialog.Color;
+                this.sketcher.LightSource.LightSourceColor = MyDialog.Color;
         }
 
         private void RColorHandler(int obj)
@@ -63,22 +63,22 @@ namespace SurfaceFiller
 
         private void SunZLocationHandler(float newValue)
         {
-            this.sketcher.SunLocationZ = newValue;
+            this.sketcher.LightSource.SunLocationZ = newValue;
         }
 
         private void SunYLocationHandler(float newValue)
         {
-            this.sketcher.SunLocationY = newValue;
+            this.sketcher.LightSource.SunLocationY = newValue;
         }
 
         private void SunXLocationHandler(float newValue)
         {
-            this.sketcher.SunLocationX = newValue;
+            this.sketcher.LightSource.SunLocationX = newValue;
         }
 
         private void SunSpeedHanlder(float newValue)
         {
-            this.sketcher.SunSped = newValue;
+            this.sketcher.LightSource.LightSpeed = newValue;
         }
 
         private void KDParameterHandler(float newValue)
@@ -87,7 +87,7 @@ namespace SurfaceFiller
 
         private void SunHandler(bool obj)
         {
-            this.sketcher.SunAnimation = !this.sketcher.SunAnimation;
+            this.sketcher.LightSource.LightAnimation = !this.sketcher.LightSource.LightAnimation;
         }
 
         private void ShowLinesHandler(object? sender, EventArgs e)

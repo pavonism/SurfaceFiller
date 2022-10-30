@@ -1,6 +1,27 @@
 ﻿
 namespace SurfaceFiller.Components
 {
+    public class FractSlider : Slider<float>
+    {
+        public FractSlider() : base()
+        {
+            this.trackBar.Minimum = 0;
+            this.trackBar.Maximum = 100;
+        }
+
+        public override float Value
+        {
+            get => this.trackBar.Value / 100;
+            set => this.trackBar.Value = (int)(value * 100);
+        }
+
+        protected override void UpdateLabelText()
+        {
+            this.valueLabel.Text = $"{(float)this.trackBar.Value / 100}";
+        }
+
+    }
+
     public class ColorSlider : Slider<int>
     {
         public ColorSlider() : base()

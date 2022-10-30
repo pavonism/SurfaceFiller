@@ -37,8 +37,11 @@ namespace SketcherControl.Shapes
 
     public class Triangle : Polygon
     {
-        public void AddVertex(Vertex vertex)
+        public void AddVertex(Vertex vertex, Coordinates? normalVector = null)
         {
+            if (normalVector.HasValue)
+                vertex.NormalVector = normalVector.Value;
+
             if (vertices.Count < 3)
             {
                 if(vertices.Any())

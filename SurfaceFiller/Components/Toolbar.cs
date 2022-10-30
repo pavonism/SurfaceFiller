@@ -39,7 +39,7 @@ namespace SurfaceFiller.Components
             Controls.Add(new Divider());
         }
 
-        private T AddSlider<T>(string labelText, float defaultValue = 0) where T : Slider, new()
+        private T AddSlider<T>(string labelText) where T : Slider, new()
         {
             var slider = new T()
             {
@@ -54,14 +54,22 @@ namespace SurfaceFiller.Components
 
         public void AddColorSlider(Action<int> handler, string labelText, int defaultValue = 0)
         {
-            var slider = AddSlider<ColorSlider>(labelText, defaultValue);
+            var slider = AddSlider<ColorSlider>(labelText);
+            slider.ValueChanged += handler;
+            slider.Value = defaultValue;
+        }
+
+
+        public void AddFractSlider(Action<float> handler, string labelText, float defaultValue = 0)
+        {
+            var slider = AddSlider<FractSlider>(labelText);
             slider.ValueChanged += handler;
             slider.Value = defaultValue;
         }
 
         public void AddSlider(Action<float> handler, string labelText, float defaultValue = 0)
         {
-            var slider = AddSlider<PercentageSlider>(labelText, defaultValue);
+            var slider = AddSlider<PercentageSlider>(labelText);
             slider.ValueChanged += handler;
             slider.Value = defaultValue;
         }

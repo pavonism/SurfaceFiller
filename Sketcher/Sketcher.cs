@@ -1,74 +1,15 @@
-﻿using SketcherControl.Shapes;
-using Timer = System.Windows.Forms.Timer;
+﻿using SketcherControl.Filling;
+using SketcherControl.Shapes;
 
 namespace SketcherControl
 {
-    public class Sketcher : PictureBox
+    public class Sketcher : PictureBox, IRenderer
     {
         DirectBitmap canvas;
         private readonly List<Triangle> triangles = new();
 
-        public bool SunAnimation
-        {
-            get => timer.Enabled;
-            set
-            {
-                if (value)
-                    timer.Start();
-                else
-                    timer.Stop();
-            }
-        }
-
-        private float sunSped = 0.5f;
-        public float SunSped
-        {
-            get => sunSped;
-            set
-            {
-                this.sunSped = value;
-            }
-        }
-
-        public float SunLocationX
-        {
-            get => this.sunLocationX;
-            set
-            {
-                this.sunLocationX = value;
-                this.xSun = (int)(this.Width * value);
-                this.fiSun = 0;
-                Refresh();
-            }
-        }
-        public float SunLocationY
-        {
-            get => this.sunLocationY;
-            set
-            {
-                this.sunLocationY = value;
-                this.ySun = (int)(this.Height * (1 - value));
-                this.fiSun = 0;
-                Refresh();
-            }
-        }
-        public float SunLocationZ
-        {
-            get => this.sunLocationZ;
-            set
-            {
-                this.sunLocationZ = value;
-                Refresh();
-            }
-        }
-
-
-        private float sunLocationX = 0.5f, sunLocationY = 0.5f, sunLocationZ = 0.5f;
-
-        float fiSun = 0;
-        int xSun;
-        int ySun;
-        private Timer timer = new();
+        public LightSource LightSource { get; private set; }
+        public ColorPicker ColorPicker { get; }
 
         public bool Fill { get; set; }
 
@@ -85,52 +26,42 @@ namespace SketcherControl
         }
 
         public bool ShowLines { get; set; } = true;
-        public Color SunColor { get; set; } = Color.White;
 
         public Sketcher()
         {
+            LightSource = new(this);
+            ColorPicker = new(LightSource);
             this.canvas = new DirectBitmap(this.Width, this.Height);
             this.Dock = DockStyle.Fill;
-            this.xSun = this.Width;
-            this.ySun = this.Height;
+
             this.Image = this.canvas.Bitmap;
-            this.timer.Interval = 16;
-            this.timer.Tick += Timer_Tick;
-            timer.Start();
+            LightSource.LightSourceChanged += ParametersChangedHandler;
+            ColorPicker.ParametersChanged += ParametersChangedHandler;
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)
+        private void ParametersChangedHandler()
         {
-            UpdateSunCoordinates();
             Refresh();
         }
-
-        private void UpdateSunCoordinates()
-        {
-            var omega = SketcherConstants.MaxSunAngleIncrease * SunSped / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - this.Width * SunLocationX, 2) + Math.Pow(ySun - this.Height * (1 - SunLocationY), 2)));
-            this.fiSun += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
-            xSun = 4 * (int)(Math.Cos(fiSun) * this.fiSun) + (int)(this.Width * SunLocationX);
-            ySun = 4 * (int)(Math.Sin(fiSun) * this.fiSun) + (int)(this.Height * (1 - SunLocationY));
-
-            if (this.Width < xSun || xSun < 0 || ySun < 0 || ySun > this.Height)
-            {
-                this.fiSun = 0;
-                UpdateSunCoordinates();
-            }
-        }
-
-
 
         public void LoadObject(string shapeObject)
         {
             this.triangles.Clear();
             List<Vertex> vertices = new List<Vertex>();
+            List<Coordinates> normalVectors = new List<Coordinates>();
+
             string[] lines = shapeObject.Split("\n");
 
             foreach (var line in lines.Where((line) => line.StartsWith("v ")))
             {
                 var values = line.Split(" ");
                 vertices.Add(new Vertex(float.Parse(values[1]), float.Parse(values[2])));
+            }
+
+            foreach (var line in lines.Where((line) => line.StartsWith("vn")))
+            {
+                var values = line.Split(" ");
+                normalVectors.Add(new Coordinates(float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
             }
 
             Triangle triangle = new();
@@ -142,7 +73,7 @@ namespace SketcherControl
                 foreach (var face in faces)
                 {
                     var vertexIndex = face.Split("//");
-                    triangle.AddVertex(vertices[int.Parse(vertexIndex[0]) - 1]);
+                    triangle.AddVertex(vertices[int.Parse(vertexIndex[0]) - 1], normalVectors[int.Parse(vertexIndex[1]) - 1]);
                 }
 
                 this.triangles.Add(triangle);
@@ -173,14 +104,7 @@ namespace SketcherControl
                     triangle.Render(this.canvas);
                 }
 
-
-
-                using (var g = Graphics.FromImage(this.canvas.Bitmap))
-                {
-                    var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold));
-                    var brush = SunColor == Color.White ? Brushes.Gold : new SolidBrush(SunColor);
-                    g.DrawString(SketcherConstants.LightSource, new Font(DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, this.canvas.Height - (ySun - size.Height / 2));
-                }
+            LightSource.Render(this.canvas);
 
             base.Refresh();
         }
