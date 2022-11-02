@@ -134,7 +134,7 @@ namespace SketcherControl.Filling
                         coefficients[i] = 0;
                 }
 
-                polygon.CoefficientsCache.TryAdd((x, y), coefficients);
+                polygon.CoefficientsCache.Add((x, y), coefficients);
             }
 
             var rc = polygon.Vertices[0].Color.R * coefficients[0] + polygon.Vertices[1].Color.R * coefficients[1] + polygon.Vertices[2].Color.R * coefficients[2];
