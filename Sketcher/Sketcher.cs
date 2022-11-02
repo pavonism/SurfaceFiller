@@ -13,6 +13,7 @@ namespace SketcherControl
         private bool freeze;
         private bool animationTurnedOn;
 
+        public int RenderThreads { get; set; }
         public LightSource LightSource { get; private set; }
         public ColorPicker ColorPicker { get; }
         public bool Fill { get; set; }
@@ -100,6 +101,20 @@ namespace SketcherControl
             Refresh();
         }
 
+
+        private Task FillAsync(int start, int step)
+        {
+            return Task.Run(
+        () =>
+        {
+            for (int j = start; j < start + step && j < this.triangles.Count; j++)
+            {
+                ScanLine.Fill(this.triangles[j], canvas, ColorPicker);
+
+            }
+        });
+        }
+
         public override void Refresh()
         {
             if (freeze)
@@ -111,10 +126,17 @@ namespace SketcherControl
             }
 
             if (Fill)
-                foreach (var trianle in this.triangles)
+            {
+                var trianglesPerThread = (int)Math.Ceiling((float)this.triangles.Count / RenderThreads);
+                List<Task> tasks = new();
+
+                for (int i = 0; i < RenderThreads; i++)
                 {
-                    ScanLine.Fill(trianle, canvas, ColorPicker);
+                    tasks.Add(FillAsync(i * trianglesPerThread, trianglesPerThread));
                 }
+
+                Task.WaitAll(tasks.ToArray());
+            }
 
             if (ShowLines)
                 foreach (var triangle in triangles)
@@ -131,7 +153,7 @@ namespace SketcherControl
         {
             base.OnSizeChanged(e);
 
-            if(!this.freeze)
+            if (!this.freeze)
             {
                 this.freeze = true;
                 animationTurnedOn = this.LightSource.LightAnimation;

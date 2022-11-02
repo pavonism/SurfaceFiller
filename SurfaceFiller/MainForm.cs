@@ -44,7 +44,12 @@ namespace SurfaceFiller
             this.toolbar.AddSlider(SunZLocationHandler, "Z", 0.5f);
             this.toolbar.AddDivider();
             this.toolbar.AddButton(ObjectColorButton, "🎨", string.Empty);
+            this.toolbar.AddSlider(ThreadsSlidrerHandler, "T", 0.01f);
+        }
 
+        private void ThreadsSlidrerHandler(float value)
+        {
+            this.sketcher.RenderThreads = (int)(value * 100);
         }
 
         private void ObjectColorButton(object? sender, EventArgs e)

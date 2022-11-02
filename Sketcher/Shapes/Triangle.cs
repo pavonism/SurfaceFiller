@@ -1,5 +1,6 @@
 ﻿using SketcherControl.Geometrics;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,7 +19,7 @@ namespace SketcherControl.Shapes
         public int EdgesCount => this.edges.Count;
         public IEnumerable<Edge> Edges => this.edges;
         public float Area { get; protected set; }
-        public readonly Dictionary<(int, int), float[]> CoefficientsCache = new();
+        public readonly ConcurrentDictionary<(int, int), float[]> CoefficientsCache = new();
 
         public virtual void GetMaxPoints(out Point max, out Point min)
         {
@@ -48,7 +49,7 @@ namespace SketcherControl.Shapes
         public void AddVertex(Vertex vertex, Vector? normalVector = null)
         {
             if (normalVector.HasValue)
-                vertex.NormalVector = !-normalVector.Value;
+                vertex.NormalVector = !normalVector.Value;
 
             if (VertexCount < 3)
             {
