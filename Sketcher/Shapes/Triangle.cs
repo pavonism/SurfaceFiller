@@ -20,6 +20,8 @@ namespace SketcherControl.Shapes
         public IEnumerable<Edge> Edges => this.edges;
         public float Area { get; protected set; }
         public readonly Dictionary<(int, int), float[]> CoefficientsCache = new();
+        public readonly Dictionary<(int, int), Vector> NormalVectorsCache = new();
+
 
         public virtual void GetMaxPoints(out Point max, out Point min)
         {
@@ -72,6 +74,7 @@ namespace SketcherControl.Shapes
         {
             Area = ((Vertices[1].RenderLocation - Vertices[0].RenderLocation) | (Vertices[2].RenderLocation - Vertices[0].RenderLocation)).Length / 2;
             CoefficientsCache.Clear();
+            NormalVectorsCache.Clear();
         }
 
         public void SetRenderScale(float scale, float offsetX, float ofssetY)

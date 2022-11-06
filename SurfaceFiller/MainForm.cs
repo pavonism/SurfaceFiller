@@ -1,4 +1,5 @@
 ﻿using SketcherControl;
+using SketcherControl.Filling;
 using SurfaceFiller.Components;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
@@ -31,6 +32,7 @@ namespace SurfaceFiller
             this.toolbar.AddButton(ResetPositionButton, "R", string.Empty);
             this.toolbar.AddDivider();
             this.toolbar.AddOption("Hide lines", ShowLinesHandler);
+            this.toolbar.AddOption("Normal Vectors", NormalVectorsHandler);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel("Light Parameters");
             this.toolbar.AddFractSlider(KDParameterHandler, "KD =", 0.5f);
@@ -38,13 +40,18 @@ namespace SurfaceFiller
             this.toolbar.AddSlider(MParameterHandler, "M =", 0.5f);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel("Sun Parameters");
-            this.toolbar.AddSlider(SunSpeedHanlder, "Speed", 0.5f);
+            this.toolbar.AddSlider(SunSpeedHanlder, "Speed", 0.1f);
             this.toolbar.AddSlider(SunXLocationHandler, "X", 0.5f);
             this.toolbar.AddSlider(SunYLocationHandler, "Y", 0.5f);
             this.toolbar.AddSlider(SunZLocationHandler, "Z", 0.5f);
             this.toolbar.AddDivider();
             this.toolbar.AddButton(ObjectColorButton, "🎨", string.Empty);
-            this.toolbar.AddSlider(ThreadsSlidrerHandler, "T", 0.01f);
+            this.toolbar.AddSlider(ThreadsSlidrerHandler, "Threads", 0.01f);
+        }
+
+        private void NormalVectorsHandler(object? sender, EventArgs e)
+        {
+            this.sketcher.ColorPicker.InterpolationMode = this.sketcher.ColorPicker.InterpolationMode == Interpolation.Color ? Interpolation.NormalVector : Interpolation.Color;
         }
 
         private void ThreadsSlidrerHandler(float value)

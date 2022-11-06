@@ -125,7 +125,14 @@ namespace SketcherControl
                 g.Clear(Color.White);
             }
 
-            if (Fill)
+            if(RenderThreads == 1 && Fill)
+            {
+                foreach (var triangle in this.triangles)
+                {
+                    ScanLine.Fill(triangle, this.canvas, ColorPicker);
+                }
+            }
+            else if (Fill)
             {
                 var trianglesPerThread = (int)Math.Ceiling((float)this.triangles.Count / RenderThreads);
                 List<Task> tasks = new();

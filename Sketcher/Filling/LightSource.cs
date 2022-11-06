@@ -9,7 +9,7 @@ namespace SketcherControl.Filling
 
         public event Action? LightSourceChanged;
 
-        private Color lightSourceColor = Color.White;
+        private Vector lightSourceColor = new Vector(1, 1, 1);
 
         /// <summary>
         /// Współrzędne względem rozmiaru bitmapy
@@ -39,13 +39,13 @@ namespace SketcherControl.Filling
 
         public Color LightSourceColor
         {
-            get => this.lightSourceColor;
+            get => this.lightSourceColor.ToColor();
             set
             {
-                if (this.lightSourceColor == value)
+                if (this.lightSourceColor.ToColor() == value)
                     return;
 
-                this.lightSourceColor = value;
+                this.lightSourceColor = value.ToVector();
                 this.LightSourceChanged?.Invoke();
             }
         }
@@ -114,6 +114,7 @@ namespace SketcherControl.Filling
             }
         }
 
+        public Vector LightSourceVector => this.lightSourceColor;
         public Vector CanvasCoordinates => new Vector(xSun, ySun, LightLocationZ);
 
         public LightSource(IRenderer renderer)
@@ -133,7 +134,7 @@ namespace SketcherControl.Filling
                 using (var g = Graphics.FromImage(canvas.Bitmap))
                 {
                     var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold));
-                    var brush = LightSourceColor == Color.White ? Brushes.Gold : new SolidBrush(LightSourceColor);
+                    var brush = /*LightSourceColor == Color.White ? */Brushes.Gold/* : new SolidBrush(LightSourceColor)*/;
                     g.DrawString(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, ySun - size.Height / 2);
                 }
 
