@@ -102,7 +102,7 @@ namespace SketcherControl.Filling
             switch (InterpolationMode)
             {
                 case Interpolation.Color:
-                    return InterpolateColor(polygon, x, y, coefficients);
+                    return InterpolateColor(polygon, coefficients);
                 case Interpolation.NormalVector:
                     return InterpolateNormalVector(polygon, x, y, coefficients);
             }
@@ -131,7 +131,7 @@ namespace SketcherControl.Filling
             Vector IL = this.lightSource.LightSourceVector;
             Vector IO = this.targetColor;
             Vector L = !(this.lightSource.Location - location);
-            Vector R = !((2 * normalVector & L) * normalVector - L);
+            Vector R = (2 * normalVector & L) * normalVector - L;
 
             var angleNL = normalVector & L;
             if (angleNL < 0) angleNL = 0;
@@ -152,16 +152,16 @@ namespace SketcherControl.Filling
                 polygon.NormalVectorsCache.Add((x, y), normalVector);
             }
 
-            var z = polygon.Vertices[0].Location.Z * coefficients[0] + polygon.Vertices[1].Location.Z * coefficients[1] + polygon.Vertices[2].Location.Z * coefficients[2];
+            var z = polygon.Vertices[0].Location.Z * coefficients[1] + polygon.Vertices[1].Location.Z * coefficients[2] + polygon.Vertices[2].Location.Z * coefficients[0];
 
             return CalculateColorInPoint(this.lightSource.Renderer.Unscale(x, y, z), normalVector);
         }
 
-        private Color InterpolateColor(Polygon polygon, int x, int y, float[] coefficients)
+        private Color InterpolateColor(Polygon polygon, float[] coefficients)
         {
-            var rc = polygon.Vertices[0].Color.R * coefficients[0] / 255 + polygon.Vertices[1].Color.R * coefficients[1] / 255 + polygon.Vertices[2].Color.R * coefficients[2] / 255;
-            var gc = polygon.Vertices[0].Color.G * coefficients[0] / 255 + polygon.Vertices[1].Color.G * coefficients[1] / 255 + polygon.Vertices[2].Color.G * coefficients[2] / 255;
-            var bc = polygon.Vertices[0].Color.B * coefficients[0] / 255 + polygon.Vertices[1].Color.B * coefficients[1] / 255 + polygon.Vertices[2].Color.B * coefficients[2] / 255;
+            var rc = polygon.Vertices[0].Color.R * coefficients[1] / 255 + polygon.Vertices[1].Color.R * coefficients[2] / 255 + polygon.Vertices[2].Color.R * coefficients[0] / 255;
+            var gc = polygon.Vertices[0].Color.G * coefficients[1] / 255 + polygon.Vertices[1].Color.G * coefficients[2] / 255 + polygon.Vertices[2].Color.G * coefficients[0] / 255;
+            var bc = polygon.Vertices[0].Color.B * coefficients[1] / 255 + polygon.Vertices[1].Color.B * coefficients[2] / 255 + polygon.Vertices[2].Color.B * coefficients[0] / 255;
 
             if (rc < 0) rc = 0;
             if (rc > 1) rc = 1;
@@ -200,9 +200,9 @@ namespace SketcherControl.Filling
 
         private Vector InterpolateNormalVector(Polygon polygon, float[] coefficients)
         {
-            var xn = polygon.Vertices[0].NormalVector.X * coefficients[0] + polygon.Vertices[1].NormalVector.X * coefficients[1] + polygon.Vertices[2].NormalVector.X * coefficients[2];
-            var yn = polygon.Vertices[0].NormalVector.Y * coefficients[0] + polygon.Vertices[1].NormalVector.Y * coefficients[1] + polygon.Vertices[2].NormalVector.Y * coefficients[2];
-            var zn = polygon.Vertices[0].NormalVector.Z * coefficients[0] + polygon.Vertices[1].NormalVector.Z * coefficients[1] + polygon.Vertices[2].NormalVector.Z * coefficients[2];
+            var xn = polygon.Vertices[0].NormalVector.X * coefficients[1] + polygon.Vertices[1].NormalVector.X * coefficients[2] + polygon.Vertices[2].NormalVector.X * coefficients[0];
+            var yn = polygon.Vertices[0].NormalVector.Y * coefficients[1] + polygon.Vertices[1].NormalVector.Y * coefficients[2] + polygon.Vertices[2].NormalVector.Y * coefficients[0];
+            var zn = polygon.Vertices[0].NormalVector.Z * coefficients[1] + polygon.Vertices[1].NormalVector.Z * coefficients[2] + polygon.Vertices[2].NormalVector.Z * coefficients[0];
 
             return !new Vector(xn, yn, zn);
         }

@@ -22,7 +22,7 @@ namespace SketcherControl.Geometrics
         #region Operators
         public static float operator&(Vector v1, Vector v2)
         {
-            return v1.X * v2.X + v1.Y * v2.X + v1.Z * v2.Z;
+            return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
         }
 
         public static Vector operator *(float number, Vector vector)

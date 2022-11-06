@@ -174,7 +174,7 @@ namespace SketcherControl
         {
             foreach (var triangle in triangles)
             {
-                triangle.SetRenderScale(Math.Min(canvas.Width, canvas.Height) / 3, canvas.Width / 2, canvas.Height / 2);
+                triangle.SetRenderScale((float)Math.Min(canvas.Width, canvas.Height) / 3, (float)canvas.Width / 2, (float)canvas.Height / 2);
             }
         }
 
@@ -182,8 +182,8 @@ namespace SketcherControl
         {
             return new Vector()
             {
-                X = (x - canvas.Width / 2) / (Math.Min(canvas.Width, canvas.Height) / 3),
-                Y = (y - canvas.Height / 2) / (Math.Min(canvas.Width, canvas.Height) / 3),
+                X = (x - (float)canvas.Width / 2) / ((float)Math.Min(canvas.Width, canvas.Height) / 3),
+                Y = (y - (float)canvas.Height / 2) / ((float)Math.Min(canvas.Width, canvas.Height) / 3),
                 Z = z,
             };
         }

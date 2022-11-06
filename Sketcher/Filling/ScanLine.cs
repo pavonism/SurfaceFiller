@@ -32,7 +32,7 @@ namespace SketcherControl.Filling
             int y = 0;
             List<Edge> AET = new();
 
-            while ((ETCount > 0 || AET.Count > 0) && y < maxPoint.Y - minPoint.Y)
+            while (ETCount > 0 || AET.Count > 0)
             {
                 if (ET[y] != null)
                 {
@@ -40,16 +40,19 @@ namespace SketcherControl.Filling
                     ETCount -= ET[y].Count;
                 }
 
-                if (AET.Count == 0)
-                {
-                    y++;
-                    continue;
-                }
-
                 AET.Sort((e1, e2) => e1.DrawingX.CompareTo(e2.DrawingX));
 
                 var currentX = AET.First().DrawingX;
                 Edge? lastEdge = null;
+
+                //for (int i = 1; i < AET.Count; i+= 2)
+                //{
+                //    for (int xi = (int)AET[i - 1].DrawingX; xi <= AET[i].DrawingX; xi++)
+                //    {
+                //        var color = colorPicker.GetColor(polygon, xi, y + minPoint.Y);
+                //        canvas.SetPixel(xi, y + minPoint.Y, color);
+                //    }
+                //}
 
                 foreach (var edge in AET)
                 {
@@ -59,7 +62,7 @@ namespace SketcherControl.Filling
                         continue;
                     }
 
-                    for (int xi = (int)lastEdge.DrawingX; xi < edge.DrawingX; xi++)
+                    for (int xi = (int)lastEdge.DrawingX; xi <= edge.DrawingX + 1; xi++)
                     {
                         var color = colorPicker.GetColor(polygon, xi, y + minPoint.Y);
                         canvas.SetPixel(xi, y + minPoint.Y, color);
