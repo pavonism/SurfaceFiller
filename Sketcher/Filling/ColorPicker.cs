@@ -1,6 +1,5 @@
 ﻿using SketcherControl.Geometrics;
 using SketcherControl.Shapes;
-using System.Reflection.Metadata.Ecma335;
 
 namespace SketcherControl.Filling
 {
@@ -13,6 +12,9 @@ namespace SketcherControl.Filling
         private float kD = 0.5f;
         private float kS = 0.5f;
         private int m = 4;
+        private LightSource lightSource;
+        private Vector v = new(0, 0, 1);
+        private DirectBitmap? texture;
 
         public Interpolation InterpolationMode
         {
@@ -74,13 +76,38 @@ namespace SketcherControl.Filling
                 if (this.targetColor == value.ToVector())
                     return;
 
+                texture?.Dispose();
+                texture = null;
                 this.targetColor = value.ToVector();
                 ParametersChanged?.Invoke();
             }
         }
 
-        private LightSource lightSource;
-        private Vector v = new(0, 0, 1);
+        public Bitmap? Pattern
+        {
+            get => this.texture?.Bitmap;
+            set
+            {
+                if (value == null)
+                {
+                    this.texture = null;
+                }
+                else
+                {
+                    this.texture = new DirectBitmap(value.Width, value.Height);
+
+                    for (int i = 0; i < value.Width; i++)
+                    {
+                        for (int j = 0; j < value.Height; j++)
+                        {
+                            this.texture.SetPixel(i, value.Height - j, value.GetPixel(i, j));
+                        }
+                    }
+                }
+
+                ParametersChanged?.Invoke();
+            }
+        }
 
         public ColorPicker(LightSource lightSource)
         {
@@ -118,7 +145,8 @@ namespace SketcherControl.Filling
                 case Interpolation.Color:
                     foreach (var vertex in vertices)
                     {
-                        vertex.Color = CalculateColorInPoint(vertex.Location, vertex.NormalVector);
+                        var textureColor = texture?.GetPixel(((int)vertex.RenderX + texture.Width / 2) % texture.Width, ((int)vertex.RenderY + texture.Height / 2) % texture.Height).ToVector();
+                        vertex.Color = CalculateColorInPoint(vertex.Location, vertex.NormalVector, textureColor);
                     }
                     break;
                 case Interpolation.NormalVector:
@@ -126,10 +154,10 @@ namespace SketcherControl.Filling
             }
         }
 
-        private Color CalculateColorInPoint(Vector location, Vector normalVector)
+        private Color CalculateColorInPoint(Vector location, Vector normalVector, Vector? textureColor = null)
         {
             Vector IL = this.lightSource.LightSourceVector;
-            Vector IO = this.targetColor;
+            Vector IO = textureColor ?? this.targetColor;
             Vector L = !(this.lightSource.Location - location);
             Vector R = (2 * normalVector & L) * normalVector - L;
 
@@ -153,8 +181,9 @@ namespace SketcherControl.Filling
             }
 
             var z = polygon.Vertices[0].Location.Z * coefficients[1] + polygon.Vertices[1].Location.Z * coefficients[2] + polygon.Vertices[2].Location.Z * coefficients[0];
+            var textureColor = this.texture?.GetPixel(x % texture.Width, y % texture.Height).ToVector();
 
-            return CalculateColorInPoint(this.lightSource.Renderer.Unscale(x, y, z), normalVector);
+            return CalculateColorInPoint(this.lightSource.Renderer.Unscale(x, y, z), normalVector, textureColor);
         }
 
         private Color InterpolateColor(Polygon polygon, float[] coefficients)

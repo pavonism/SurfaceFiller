@@ -1,9 +1,7 @@
 ﻿using SketcherControl;
 using SketcherControl.Filling;
 using SurfaceFiller.Components;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Drawing.Imaging;
 
 namespace SurfaceFiller
 {
@@ -24,29 +22,59 @@ namespace SurfaceFiller
         {
             this.toolbar.AddLabel(Resources.ProgramTitle);
             this.toolbar.AddDivider();
-            this.toolbar.AddButton(OpenFileHandler, "📂", string.Empty);
-            this.toolbar.AddTool(FillHandler, "🪣", string.Empty);
-            this.toolbar.AddTool(SunHandler, "☀", string.Empty);
-            this.toolbar.AddButton(ColorButton, "🎨", string.Empty);
-            this.toolbar.AddTool(ShowTrackHandler, "T", string.Empty);
-            this.toolbar.AddButton(ResetPositionButton, "R", string.Empty);
+            this.toolbar.AddButton(OpenFileHandler, Glyphs.File, Hints.OpenOBJ);
+            this.toolbar.AddTool(FillHandler, Glyphs.Bucket, Hints.Fill);
+            this.toolbar.AddSlider(ThreadsSlidrerHandler, Labels.ThreadSlider , 0.01f);
             this.toolbar.AddDivider();
-            this.toolbar.AddOption("Hide lines", ShowLinesHandler);
-            this.toolbar.AddOption("Normal Vectors", NormalVectorsHandler);
+            this.toolbar.AddOption(Labels.ShowLinesOption, ShowLinesHandler);
+            this.toolbar.AddOption(Labels.NormalVectorsOption, NormalVectorsHandler);
             this.toolbar.AddDivider();
-            this.toolbar.AddLabel("Light Parameters");
-            this.toolbar.AddFractSlider(KDParameterHandler, "KD =", 0.5f);
-            this.toolbar.AddFractSlider(KSParameterHandler, "KS =", 0.5f);
-            this.toolbar.AddSlider(MParameterHandler, "M =", 0.5f);
+            this.toolbar.AddLabel(Labels.ModelParameters);
+            this.toolbar.AddFractSlider(KDParameterHandler, Labels.KDParameter, 0.5f);
+            this.toolbar.AddFractSlider(KSParameterHandler, Labels.KSParameter, 0.5f);
+            this.toolbar.AddSlider(MParameterHandler, Labels.MParameter, 0.5f);
             this.toolbar.AddDivider();
-            this.toolbar.AddLabel("Sun Parameters");
-            this.toolbar.AddSlider(SunSpeedHanlder, "Speed", 0.1f);
-            this.toolbar.AddSlider(SunXLocationHandler, "X", 0.5f);
-            this.toolbar.AddSlider(SunYLocationHandler, "Y", 0.5f);
-            this.toolbar.AddSlider(SunZLocationHandler, "Z", 0.5f);
+            this.toolbar.AddLabel(Labels.LightSection);
+            this.toolbar.AddPlayPouse(SunHandler, string.Empty, true);
+            this.toolbar.AddButton(ColorButton, Glyphs.Palette, Hints.ChangeLightColor);
+            this.toolbar.AddTool(ShowTrackHandler, Glyphs.Spiral, Hints.ShowTrack);
+            this.toolbar.AddButton(ResetPositionButton, Glyphs.Reset, Hints.ResetPosition);
+            this.toolbar.AddSlider(SunSpeedHanlder, Labels.Speed, 0.1f);
+            this.toolbar.AddSlider(SunXLocationHandler, Labels.XLocation, 0.5f);
+            this.toolbar.AddSlider(SunYLocationHandler, Labels.YLocation, 0.5f);
+            this.toolbar.AddSlider(SunZLocationHandler, Labels.ZLocation, 0.5f);
             this.toolbar.AddDivider();
-            this.toolbar.AddButton(ObjectColorButton, "🎨", string.Empty);
-            this.toolbar.AddSlider(ThreadsSlidrerHandler, "Threads", 0.01f);
+            this.toolbar.AddLabel(Labels.ObjectSection);
+            this.toolbar.AddButton(ObjectColorButton, Glyphs.Palette, Hints.ChangeObjectColor);
+            this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
+        }
+
+        private void LoadTextureHandlar(object? sender, EventArgs e)
+        {
+            var fileContent = string.Empty;
+            var filePath = string.Empty;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Object files (*.obj)|*.obj|All files (*.*)|*.*";
+                openFileDialog.RestoreDirectory = true;
+
+                var codecs = ImageCodecInfo.GetImageEncoders();
+                var codecFilter = "Image Files|";
+                foreach (var codec in codecs)
+                {
+                    codecFilter += codec.FilenameExtension + ";";
+                }
+                openFileDialog.Filter = codecFilter;
+
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    filePath = openFileDialog.FileName;
+                }
+            }
+
+            this.sketcher.ColorPicker.Pattern = new Bitmap(Image.FromFile(filePath));
         }
 
         private void NormalVectorsHandler(object? sender, EventArgs e)
@@ -129,7 +157,7 @@ namespace SurfaceFiller
             this.sketcher.LightSource.LightSpeed = newValue;
         }
 
-        private void SunHandler(bool obj)
+        private void SunHandler(bool newValue)
         {
             this.sketcher.LightSource.LightAnimation = !this.sketcher.LightSource.LightAnimation;
         }

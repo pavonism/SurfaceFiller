@@ -2,15 +2,29 @@
 
 namespace SurfaceFiller.Components
 {
+    public class PlayPouseButton : CheckButton
+    {
+        public override bool Lock
+        {
+            get => this.ticked;
+            set
+            {
+                this.ticked = value;
+                this.Text = value ? "⏸" : "▶";
+
+            }
+        }
+    }
+
     /// <summary>
     /// Implementuje okrągły przycisk w formie checkboxa
     /// </summary>
     public class CheckButton : OptionButton
     {
         #region Fields and Properties
-        private bool ticked;
+        protected bool ticked;
 
-        public bool Lock
+        public virtual bool Lock
         {
             get => ticked;
             set

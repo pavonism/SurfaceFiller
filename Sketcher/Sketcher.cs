@@ -16,7 +16,7 @@ namespace SketcherControl
         public int RenderThreads { get; set; }
         public LightSource LightSource { get; private set; }
         public ColorPicker ColorPicker { get; }
-        public bool Fill { get; set; }
+        public bool Fill { get; set; } = true;
 
         public Size BitmpapSize
         {
@@ -30,7 +30,7 @@ namespace SketcherControl
             }
         }
 
-        public bool ShowLines { get; set; } = true;
+        public bool ShowLines { get; set; } = false;
 
         public Sketcher()
         {
@@ -41,7 +41,7 @@ namespace SketcherControl
 
             this.Image = this.canvas.Bitmap;
             this.resizeTimer = new();
-            this.resizeTimer.Interval = 50;
+            this.resizeTimer.Interval = 100;
             this.resizeTimer.Tick += ResizeTimerHandler;
             LightSource.LightSourceChanged += ParametersChangedHandler;
             ColorPicker.ParametersChanged += ParametersChangedHandler;
@@ -54,6 +54,7 @@ namespace SketcherControl
             SetRenderScale();
             this.LightSource.LightAnimation = this.animationTurnedOn;
             this.freeze = false;
+            Refresh();
         }
 
         private void ParametersChangedHandler()

@@ -74,6 +74,14 @@ namespace SurfaceFiller.Components
             slider.Value = defaultValue;
         }
 
+        public void AddPlayPouse(Action<bool> handler, string hint, bool defaultState)
+        {
+            var button = new PlayPouseButton();
+            button.Lock = defaultState;
+            button.OnOptionChanged += handler;
+            Controls.Add(button);
+        }
+
         public Button AddButton(EventHandler handler, string glyph, string hint)
         {
             var button = new OptionButton()
