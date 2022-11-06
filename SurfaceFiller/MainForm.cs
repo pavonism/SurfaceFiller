@@ -40,8 +40,6 @@ namespace SurfaceFiller
             this.toolbar.AddTool(ShowTrackHandler, Glyphs.Spiral, Hints.ShowTrack);
             this.toolbar.AddButton(ResetPositionButton, Glyphs.Reset, Hints.ResetPosition);
             this.toolbar.AddSlider(SunSpeedHanlder, Labels.Speed, 0.1f);
-            this.toolbar.AddSlider(SunXLocationHandler, Labels.XLocation, 0.5f);
-            this.toolbar.AddSlider(SunYLocationHandler, Labels.YLocation, 0.5f);
             this.toolbar.AddSlider(SunZLocationHandler, Labels.ZLocation, 0.5f);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.ObjectSection);
@@ -140,16 +138,6 @@ namespace SurfaceFiller
         private void SunZLocationHandler(float newValue)
         {
             this.sketcher.LightSource.LightLocationZ = newValue;
-        }
-
-        private void SunYLocationHandler(float newValue)
-        {
-            this.sketcher.LightSource.LightLocationY = newValue;
-        }
-
-        private void SunXLocationHandler(float newValue)
-        {
-            this.sketcher.LightSource.LightLocationX = newValue;
         }
 
         private void SunSpeedHanlder(float newValue)

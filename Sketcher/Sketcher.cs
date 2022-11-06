@@ -10,8 +10,18 @@ namespace SketcherControl
         DirectBitmap canvas;
         private readonly List<Triangle> triangles = new();
         private Timer resizeTimer;
+        /// <summary>
+        /// Blokuje renderowanie sceny
+        /// </summary>
         private bool freeze;
-        private bool animationTurnedOn;
+        /// <summary>
+        /// Czy animacja była włączona przed przesunięciem źródła światła / przed zmianą rozmiaru okna
+        /// </summary>
+        private bool wasAnimationTurnedOn;
+        /// <summary>
+        /// Czy użytkownik przesuwa myszką źródło światłą?
+        /// </summary>
+        private bool lightIsMoving;
 
         public int RenderThreads { get; set; }
         public LightSource LightSource { get; private set; }
@@ -52,8 +62,9 @@ namespace SketcherControl
             this.resizeTimer.Stop();
             BitmpapSize = new Size(this.Width, this.Height);
             SetRenderScale();
-            this.LightSource.LightAnimation = this.animationTurnedOn;
+            this.LightSource.LightAnimation = this.wasAnimationTurnedOn;
             this.freeze = false;
+            LightSource.RecalculateLightCoordinates();
             Refresh();
         }
 
@@ -164,7 +175,7 @@ namespace SketcherControl
             if (!this.freeze)
             {
                 this.freeze = true;
-                animationTurnedOn = this.LightSource.LightAnimation;
+                wasAnimationTurnedOn = this.LightSource.LightAnimation;
                 this.LightSource.LightAnimation = false;
             }
             this.resizeTimer.Stop();
@@ -188,5 +199,39 @@ namespace SketcherControl
                 Z = z,
             };
         }
+
+        #region Overrides
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (LightSource.HitTest(e.X, e.Y))
+            {
+                this.lightIsMoving = true;
+                wasAnimationTurnedOn = LightSource.LightAnimation;
+                LightSource.LightAnimation = false;
+            }
+            else
+            {
+                this.lightIsMoving = false;
+            }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (this.lightIsMoving)
+            {
+                LightSource.MoveTo(e.X, e.Y);
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            if (this.lightIsMoving)
+            {
+                this.lightIsMoving = false;
+                LightSource.LightAnimation = wasAnimationTurnedOn;
+                wasAnimationTurnedOn = false;
+            }
+        }
+        #endregion
     }
 }

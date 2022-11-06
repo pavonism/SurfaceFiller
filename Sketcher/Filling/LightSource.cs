@@ -1,4 +1,5 @@
 ﻿using SketcherControl.Geometrics;
+using System.Security.Cryptography.Xml;
 using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl.Filling
@@ -164,12 +165,21 @@ namespace SketcherControl.Filling
 
         private void MoveLight()
         {
-            var omega = SketcherConstants.LightSourceSpeedCoefficient * Math.Min(Renderer.Size.Width, Renderer.Size.Height) * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(ySun - Renderer.Size.Height * LightLocationY, 2)));
-            this.lightAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
+            var dist = Math.Sqrt(Math.Pow(ySun - Renderer.Size.Height * LightLocationY, 2) + Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2));
+
+            if (dist < 1)
+            {
+                this.lightAngle += 0.2f;
+            }
+            else
+            {
+                var omega = SketcherConstants.LightSourceSpeedCoefficient * Math.Min(Renderer.Size.Width, Renderer.Size.Height) * LightSpeed / (float)(2 * Math.PI * dist);
+                this.lightAngle += omega * this.timer.Interval / 1000;
+            }
             RecalculateLightCoordinates();
         }
 
-        private void RecalculateLightCoordinates()
+        public void RecalculateLightCoordinates()
         {
             xSun = 4 * (int)(Math.Cos(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Width * LightLocationX);
             ySun = 4 * (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * LightLocationY);
@@ -182,6 +192,19 @@ namespace SketcherControl.Filling
 
             this.lightAngle = 0f;
             this.LightSourceChanged?.Invoke();
+        }
+
+
+        public bool HitTest(int x, int y)
+        {
+            return Math.Pow(Math.Abs(x - xSun), 2) + Math.Pow(Math.Abs(y - ySun), 2) <= Math.Pow(SketcherConstants.LightHitTestRadius, 2);
+        }
+
+        public void MoveTo(int x, int y)
+        {
+            Reset();
+            LightLocationX = (float)x / Renderer.Size.Width;
+            LightLocationY = 1 - (float)y / Renderer.Size.Height;
         }
     }
 }
