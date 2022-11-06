@@ -36,6 +36,8 @@ namespace SurfaceFiller
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.LightSection);
             this.toolbar.AddPlayPouse(SunHandler, string.Empty, true);
+            this.toolbar.AddProcessButton(RewindHandler, Glyphs.Rewind, string.Empty);
+            this.toolbar.AddProcessButton(MoveForwardHandler, Glyphs.Forward, string.Empty);
             this.toolbar.AddButton(ColorButton, Glyphs.Palette, Hints.ChangeLightColor);
             this.toolbar.AddTool(ShowTrackHandler, Glyphs.Spiral, Hints.ShowTrack);
             this.toolbar.AddButton(ResetPositionButton, Glyphs.Reset, Hints.ResetPosition);
@@ -45,6 +47,18 @@ namespace SurfaceFiller
             this.toolbar.AddLabel(Labels.ObjectSection);
             this.toolbar.AddButton(ObjectColorButton, Glyphs.Palette, Hints.ChangeObjectColor);
             this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
+        }
+
+        private void MoveForwardHandler()
+        {
+            this.sketcher.LightSource.MoveLight();
+            this.sketcher.Refresh();
+        }
+
+        private void RewindHandler()
+        {
+            this.sketcher.LightSource.MoveLight(true);
+            this.sketcher.Refresh();
         }
 
         private void LoadTextureHandlar(object? sender, EventArgs e)
@@ -72,6 +86,7 @@ namespace SurfaceFiller
                 }
             }
 
+            if(!string.IsNullOrWhiteSpace(filePath))
             this.sketcher.ColorPicker.Pattern = new Bitmap(Image.FromFile(filePath));
         }
 

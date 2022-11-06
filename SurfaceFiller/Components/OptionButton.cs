@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Drawing2D;
+using Timer = System.Windows.Forms.Timer;
 
 namespace SurfaceFiller.Components
 {
@@ -10,9 +11,37 @@ namespace SurfaceFiller.Components
             set
             {
                 this.ticked = value;
-                this.Text = value ? "⏸" : "▶";
+                this.Text = value ? Glyphs.Pause : Glyphs.Play;
 
             }
+        }
+    }
+
+    public class ProcessButton : OptionButton
+    {
+        private Timer _timer = new Timer();
+        private Action processAction;
+
+        public ProcessButton(Action processAction)
+        {
+            _timer.Interval = 32;
+            _timer.Tick += _timer_Tick;
+            this.processAction = processAction;
+        }
+
+        private void _timer_Tick(object? sender, EventArgs e)
+        {
+            this.processAction?.Invoke();
+        }
+
+        protected override void OnMouseDown(MouseEventArgs mevent)
+        {
+            _timer.Start();
+        }
+
+        protected override void OnMouseUp(MouseEventArgs mevent)
+        {
+            _timer.Stop();
         }
     }
 

@@ -52,6 +52,12 @@ namespace SurfaceFiller.Components
             return slider;
         }
 
+        private void AddTooltip(Control control, string hint)
+        {
+            var tooltip = new ToolTip();
+            tooltip.SetToolTip(control, hint);
+        }
+
         public void AddColorSlider(Action<int> handler, string labelText, int defaultValue = 0)
         {
             var slider = AddSlider<ColorSlider>(labelText);
@@ -82,6 +88,13 @@ namespace SurfaceFiller.Components
             Controls.Add(button);
         }
 
+        public void AddProcessButton(Action handler, string glyph, string hint)
+        {
+            var button = new ProcessButton(handler) { Text = glyph };
+            AddTooltip(button, hint);
+            Controls.Add(button);
+        }
+
         public Button AddButton(EventHandler handler, string glyph, string hint)
         {
             var button = new OptionButton()
@@ -90,8 +103,7 @@ namespace SurfaceFiller.Components
                 Margin = new Padding(2, 2, 2, 2),
             };
 
-            var tooltip = new ToolTip();
-            tooltip.SetToolTip(button, hint);
+            AddTooltip(button, hint);
             button.Click += handler;
             Controls.Add(button);
 
@@ -110,10 +122,7 @@ namespace SurfaceFiller.Components
 
             button.OnOptionChanged += handler;
 
-
-
-            var tooltip = new ToolTip();
-            tooltip.SetToolTip(button, hint);
+            AddTooltip(button, hint);
             Controls.Add(button);
             return button;
         }
@@ -137,8 +146,7 @@ namespace SurfaceFiller.Components
 
             if (hint != null)
             {
-                var tooltipControl = new ToolTip();
-                tooltipControl.SetToolTip(checkBox, hint);
+                AddTooltip(checkBox, hint);
             }
 
             checkBox.CheckedChanged += onOptionChanged;

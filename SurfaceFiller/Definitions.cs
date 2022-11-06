@@ -47,6 +47,10 @@ namespace SurfaceFiller
         public const string Reset = "\U0001F504";
         public const string File = "\U0001F4C2";
         public const string Bucket = "\U0001FAA3";
+        public const string Rewind = "\u23EA";
+        public const string Forward = "\u23E9";
+        public const string Play = "\u25B6";
+        public const string Pause = "\u23F8";
     }
 
     public static class Hints

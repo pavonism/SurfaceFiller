@@ -219,7 +219,10 @@ namespace SketcherControl
         {
             if (this.lightIsMoving)
             {
+                freeze = true;
                 LightSource.MoveTo(e.X, e.Y);
+                freeze = false;
+                Refresh();
             }
         }
 
