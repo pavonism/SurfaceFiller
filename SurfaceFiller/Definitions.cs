@@ -63,5 +63,6 @@ namespace SurfaceFiller
         public const string ResetPosition = "Resetuj położenie źródła światła do punktu początkowego";
         public const string ChangeObjectColor = "Zmień kolor powierzchni";
         public const string LoadObjectPattern = "Wczytaj z pliku teksturę powierzchni";
+        public const string LoadNormalMap = "Wczytaj z pliku mapę wektorów normalnych";
     }
 }

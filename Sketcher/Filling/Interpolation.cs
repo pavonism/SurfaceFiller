@@ -10,6 +10,5 @@ namespace SketcherControl.Filling
     {
         Color, 
         NormalVector,
-        NormalMap, 
     }
 }

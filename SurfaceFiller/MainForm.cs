@@ -47,12 +47,15 @@ namespace SurfaceFiller
             this.toolbar.AddLabel(Labels.ObjectSection);
             this.toolbar.AddButton(ObjectColorButton, Glyphs.Palette, Hints.ChangeObjectColor);
             this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
-            this.toolbar.AddOption(Labels.NormalMapOption, VectorMapHandler);
+            this.toolbar.AddButton(VectorMapHandler, Glyphs.File, Hints.LoadNormalMap);
         }
 
         private void VectorMapHandler(object? sender, EventArgs e)
         {
-            this.sketcher.ColorPicker.InterpolationMode = Interpolation.NormalMap;
+            var normalMap = OpenLoadImageDialog();
+
+            if (normalMap != null)
+                this.sketcher.ColorPicker.NormalMap = normalMap;
         }
 
         private void MoveForwardHandler()
@@ -69,31 +72,10 @@ namespace SurfaceFiller
 
         private void LoadTextureHandlar(object? sender, EventArgs e)
         {
-            var fileContent = string.Empty;
-            var filePath = string.Empty;
+            var texture = OpenLoadImageDialog();
 
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Filter = "Object files (*.obj)|*.obj|All files (*.*)|*.*";
-                openFileDialog.RestoreDirectory = true;
-
-                var codecs = ImageCodecInfo.GetImageEncoders();
-                var codecFilter = "Image Files|";
-                foreach (var codec in codecs)
-                {
-                    codecFilter += codec.FilenameExtension + ";";
-                }
-                openFileDialog.Filter = codecFilter;
-
-
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    filePath = openFileDialog.FileName;
-                }
-            }
-
-            if(!string.IsNullOrWhiteSpace(filePath))
-            this.sketcher.ColorPicker.Pattern = new Bitmap(Image.FromFile(filePath));
+            if (texture != null)
+                this.sketcher.ColorPicker.Pattern = texture;
         }
 
         private void NormalVectorsHandler(object? sender, EventArgs e)
@@ -224,6 +206,37 @@ namespace SurfaceFiller
             this.mainTableLayout.Controls.Add(this.toolbar, 0, 0);
             this.mainTableLayout.Dock = DockStyle.Fill;
             this.Controls.Add(mainTableLayout);
+        }
+
+        private Bitmap? OpenLoadImageDialog()
+        {
+            var fileContent = string.Empty;
+            var filePath = string.Empty;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Object files (*.obj)|*.obj|All files (*.*)|*.*";
+                openFileDialog.RestoreDirectory = true;
+
+                var codecs = ImageCodecInfo.GetImageEncoders();
+                var codecFilter = "Image Files|";
+                foreach (var codec in codecs)
+                {
+                    codecFilter += codec.FilenameExtension + ";";
+                }
+                openFileDialog.Filter = codecFilter;
+
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    filePath = openFileDialog.FileName;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(filePath))
+                return new Bitmap(Image.FromFile(filePath));
+
+            return null;
         }
     }
 }

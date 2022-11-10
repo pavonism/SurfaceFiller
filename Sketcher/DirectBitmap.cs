@@ -13,13 +13,23 @@ namespace SketcherControl
 
         protected GCHandle BitsHandle { get; private set; }
 
-        public DirectBitmap(int width, int height)
+        private void InitializeBitmap(int width, int height)
         {
             Width = width;
             Height = height;
             Bits = new Int32[width * height];
             BitsHandle = GCHandle.Alloc(Bits, GCHandleType.Pinned);
             Bitmap = new Bitmap(width, height, width * 4, PixelFormat.Format32bppPArgb, BitsHandle.AddrOfPinnedObject());
+        }
+
+        public DirectBitmap(Bitmap bitmap) : this(bitmap.Width, bitmap.Height)
+        {
+            Load(bitmap);
+        }
+
+        public DirectBitmap(int width, int height)
+        {
+            InitializeBitmap(width, height);
         }
 
         public void SetPixel(int x, int y, Color colour)
@@ -37,6 +47,20 @@ namespace SketcherControl
             Color result = Color.FromArgb(col);
 
             return result;
+        }
+
+        public void Load(Bitmap bitmap)
+        {
+            if (bitmap.Width != Width || bitmap.Height != Height)
+                InitializeBitmap(bitmap.Width, bitmap.Height);
+
+            for (int i = 0; i < bitmap.Width; i++)
+            {
+                for (int j = 0; j < bitmap.Height; j++)
+                {
+                    SetPixel(i, bitmap.Height - j, bitmap.GetPixel(i, j));
+                }
+            }
         }
 
         public void Dispose()
