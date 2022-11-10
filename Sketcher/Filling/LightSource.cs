@@ -21,9 +21,10 @@ namespace SketcherControl.Filling
         int xSun;
         int ySun;
         private bool showTrack;
+        private MoveDirection moveDirection = MoveDirection.Forward;
         private Timer timer = new();
 
-        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, 1f + 5f*lightLocationZ);
+        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, 1f + 5f * lightLocationZ);
 
         public bool ShowTrack
         {
@@ -145,7 +146,7 @@ namespace SketcherControl.Filling
                 int currentXLight = (int)(LightLocationX * Renderer.Size.Width), currentYLight = (int)(Renderer.Size.Height * LightLocationY);
                 while (currentAngle < this.lightAngle)
                 {
-                    var omega = SketcherConstants.LightSourceSpeedCoefficient * LightSpeed / (float)(2 * Math.PI * Math.Sqrt(Math.Pow(currentXLight - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(currentYLight - Renderer.Size.Height * (1 - LightLocationY), 2)));
+                    var omega = SketcherConstants.LightSourceSpeedCoefficient * LightSpeed / (float)(2 * Math.PI * DistanceFromStart(xSun, ySun));
                     currentAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
                     currentXLight = 4 * (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
                     currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * LightLocationY);
@@ -159,17 +160,17 @@ namespace SketcherControl.Filling
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            MoveLight();
+            MoveLight(moveDirection == MoveDirection.Backward);
             this.LightSourceChanged?.Invoke();
         }
 
         public void MoveLight(bool backwards = false)
         {
-            var dist = Math.Sqrt(Math.Pow(ySun - Renderer.Size.Height * LightLocationY, 2) + Math.Pow(xSun - Renderer.Size.Width * LightLocationX, 2));
+            var dist = DistanceFromStart(xSun, ySun);
 
             if (dist < 1)
             {
-                if(backwards)
+                if (backwards)
                     this.lightAngle = Math.Max(0, this.lightAngle - 0.2f);
                 else
                     this.lightAngle += 0.2f;
@@ -189,6 +190,20 @@ namespace SketcherControl.Filling
         {
             xSun = 4 * (int)(Math.Cos(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Width * LightLocationX);
             ySun = 4 * (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * LightLocationY);
+
+            if (xSun <= 0 || xSun >= Renderer.Size.Width || ySun <= 0 || ySun >= Renderer.Size.Height)
+            {
+                this.moveDirection = MoveDirection.Backward;
+            }
+            else if (DistanceFromStart(xSun, ySun) < 1)
+            {
+                this.moveDirection = MoveDirection.Forward;
+            }
+        }
+
+        private float DistanceFromStart(float x, float y)
+        {
+            return (float)Math.Sqrt(Math.Pow(x - Renderer.Size.Width * LightLocationX, 2) + Math.Pow(y - Renderer.Size.Height * LightLocationY, 2));
         }
 
         public void Reset()
@@ -212,5 +227,11 @@ namespace SketcherControl.Filling
             LightLocationX = (float)x / Renderer.Size.Width;
             LightLocationY = 1 - (float)y / Renderer.Size.Height;
         }
+    }
+
+    internal enum MoveDirection
+    {
+        Forward,
+        Backward,
     }
 }
