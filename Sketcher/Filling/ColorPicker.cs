@@ -131,10 +131,35 @@ namespace SketcherControl.Filling
                 case Interpolation.Color:
                     return InterpolateColor(polygon, coefficients);
                 case Interpolation.NormalVector:
-                    return InterpolateNormalVector(polygon, x, y, coefficients);
+                    var normalVector = InterpolateNormalVector(polygon, x, y, coefficients);
+                    var textureColor = GetTextureColor(x, y);
+                    var z = InterpolateZ(polygon, coefficients);
+                    return CalculateColorInPoint(this.lightSource.Renderer.Unscale(x, y, z), normalVector, textureColor);
+                case Interpolation.NormalMap:
+                    normalVector = InterpolateNormalVector(polygon, x, y, coefficients);
+                    return CalculateVectorMapColor(polygon, x, y, normalVector, coefficients);
             }
 
             return Color.Empty;
+        }
+
+        private Color CalculateVectorMapColor(Polygon polygon, int x, int y, Vector NSurface, float[] coefficients)
+        {
+            var textureColor = this.texture!.GetPixel(x % texture.Width, y % texture.Height);
+            var NTexture = textureColor.ToNormalMapVector();
+            var B = !(NSurface | new Vector(0, 0, 1));
+            var T = !(B | NSurface);
+
+            var N = new Vector()
+            {
+                X = T.X * NTexture.X + B.X * NTexture.Y + NSurface.X * NTexture.Z,
+                Y = T.Y * NTexture.X + B.Y * NTexture.Y + NSurface.Y * NTexture.Z,
+                Z = T.Z * NTexture.X + B.Z * NTexture.Y + NSurface.Z * NTexture.Z,
+            };
+
+            var z = InterpolateZ(polygon, coefficients);
+
+            return CalculateColorInPoint(this.lightSource.Renderer.Unscale(x, y, z), N, textureColor.ToVector());
         }
 
         public void StartFillingTriangle(IEnumerable<Vertex> vertices)
@@ -170,7 +195,7 @@ namespace SketcherControl.Filling
             return ((KD * IL * IO * angleNL) + (KS * IL * IO * (float)Math.Pow(angleVR, m))).ToColor();
         }
 
-        private Color InterpolateNormalVector(Polygon polygon, int x, int y, float[] coefficients)
+        private Vector InterpolateNormalVector(Polygon polygon, int x, int y, float[] coefficients)
         {
             Vector normalVector;
 
@@ -180,10 +205,17 @@ namespace SketcherControl.Filling
                 polygon.NormalVectorsCache.Add((x, y), normalVector);
             }
 
-            var z = polygon.Vertices[0].Location.Z * coefficients[1] + polygon.Vertices[1].Location.Z * coefficients[2] + polygon.Vertices[2].Location.Z * coefficients[0];
-            var textureColor = this.texture?.GetPixel(x % texture.Width, y % texture.Height).ToVector();
+            return normalVector;
+        }
 
-            return CalculateColorInPoint(this.lightSource.Renderer.Unscale(x, y, z), normalVector, textureColor);
+        private float InterpolateZ(Polygon polygon, float[] coefficients)
+        {
+            return polygon.Vertices[0].Location.Z * coefficients[1] + polygon.Vertices[1].Location.Z * coefficients[2] + polygon.Vertices[2].Location.Z * coefficients[0];
+        }
+
+        private Vector? GetTextureColor(int x, int y)
+        {
+            return this.texture?.GetPixel(x % texture.Width, y % texture.Height).ToVector();
         }
 
         private Color InterpolateColor(Polygon polygon, float[] coefficients)

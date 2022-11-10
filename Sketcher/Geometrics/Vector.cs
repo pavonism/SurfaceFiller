@@ -12,6 +12,8 @@ namespace SketcherControl.Geometrics
             Z = z;
         }
 
+        public Vector(Vector source) : this(source.X, source.Y, source.Z) { }
+
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
@@ -33,6 +35,11 @@ namespace SketcherControl.Geometrics
         public static Vector operator *(Vector vector, float number)
         {
             return new Vector(vector.X * number, vector.Y * number, vector.Z * number);
+        }
+
+        public static Vector operator -(Vector vector, float number)
+        {
+            return new Vector(vector.X - number, vector.Y * number, vector.Z - number);
         }
 
         public static Vector operator *(Vector v1, Vector v2)
@@ -112,6 +119,14 @@ namespace SketcherControl.Geometrics
         public static Vector ToVector(this Color color)
         {
             return new Vector((float)color.R / 255, (float)color.G / 255, (float)color.B / 255);
+        }
+
+        public static Vector ToNormalMapVector(this Color color)
+        {
+            var normalMapVector = color.ToVector();
+            normalMapVector.X = normalMapVector.X * 2 - 1;
+            normalMapVector.Y = normalMapVector.Y * 2 - 1;
+            return normalMapVector;
         }
 
         public static Color ToColor(this Vector vector)

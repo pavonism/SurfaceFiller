@@ -47,6 +47,12 @@ namespace SurfaceFiller
             this.toolbar.AddLabel(Labels.ObjectSection);
             this.toolbar.AddButton(ObjectColorButton, Glyphs.Palette, Hints.ChangeObjectColor);
             this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
+            this.toolbar.AddOption(Labels.NormalMapOption, VectorMapHandler);
+        }
+
+        private void VectorMapHandler(object? sender, EventArgs e)
+        {
+            this.sketcher.ColorPicker.InterpolationMode = Interpolation.NormalMap;
         }
 
         private void MoveForwardHandler()
@@ -180,7 +186,6 @@ namespace SurfaceFiller
         private void OpenFileHandler(object? sender, EventArgs e)
         {
             var fileContent = string.Empty;
-            var filePath = string.Empty;
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -189,8 +194,6 @@ namespace SurfaceFiller
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    filePath = openFileDialog.FileName;
-
                     var fileStream = openFileDialog.OpenFile();
 
                     using (StreamReader reader = new StreamReader(fileStream))

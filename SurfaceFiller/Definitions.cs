@@ -38,6 +38,7 @@ namespace SurfaceFiller
         public const string YLocation = "Y";
         public const string ZLocation = "Z";
         public const string ObjectSection = "Object Parameters";
+        public const string NormalMapOption = "NormalMap";
     }
 
     public static class Glyphs
