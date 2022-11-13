@@ -42,36 +42,16 @@ namespace SketcherControl.Filling
 
                 AET.Sort((e1, e2) => e1.DrawingX.CompareTo(e2.DrawingX));
 
-                var currentX = AET.First().DrawingX;
-                Edge? lastEdge = null;
+                AET.RemoveAll((edge) => (int)edge.YMax <= y + minPoint.Y);
 
-                //for (int i = 1; i < AET.Count; i+= 2)
-                //{
-                //    for (int xi = (int)AET[i - 1].DrawingX; xi <= AET[i].DrawingX; xi++)
-                //    {
-                //        var color = colorPicker.GetColor(polygon, xi, y + minPoint.Y);
-                //        canvas.SetPixel(xi, y + minPoint.Y, color);
-                //    }
-                //}
-
-                foreach (var edge in AET)
+                for (int i = 1; i < AET.Count; i += 2)
                 {
-                    if (lastEdge == null)
-                    {
-                        lastEdge = edge;
-                        continue;
-                    }
-
-                    for (int xi = (int)lastEdge.DrawingX; xi <= edge.DrawingX + 1; xi++)
+                    for (int xi = (int)AET[i - 1].DrawingX; xi <= AET[i].DrawingX; xi++)
                     {
                         var color = colorPicker.GetColor(polygon, xi, y + minPoint.Y);
                         canvas.SetPixel(xi, y + minPoint.Y, color);
                     }
-
-                    lastEdge = edge;
                 }
-
-                AET.RemoveAll((edge) => (int)edge.YMax <= y + minPoint.Y);
 
                 y++;
 
