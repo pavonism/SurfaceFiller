@@ -1,7 +1,7 @@
 ﻿
 namespace SketcherControl
 {
-    internal class SketcherConstants
+    public class SketcherConstants
     {
         public const float VertexPointRadius = 2;
         public const string LightSource = "☀";

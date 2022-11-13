@@ -6,15 +6,20 @@ namespace SurfaceFiller
     public static class Resources
     {
         public const string ProgramTitle = "SurfaceFiller  \u25B2";
+
+        public const string TextureAssets = @"..\..\..\..\Assets\Textures";
+        public const string NormalMapsAssets = @"..\..\..\..\Assets\NormalMaps";
+        public const string ObjectAssets = @"..\..\..\..\Assets\Objects";
+        public const string DefaultObject = "Sphere";
     }
 
     public static class FormConstants
     {
         public const int MinimumWindowSizeX = 700;
-        public const int MinimumWindowSizeY = 800;
+        public const int MinimumWindowSizeY = 700;
 
         public const int InitialWindowSizeX = 900;
-        public const int InitialWindowSizeY = 800;
+        public const int InitialWindowSizeY = 700;
 
         public const int MainFormColumnCount = 2;
         public const int MinimumControlSize = 32;
@@ -37,7 +42,7 @@ namespace SurfaceFiller
         public const string XLocation = "X";
         public const string YLocation = "Y";
         public const string ZLocation = "Z";
-        public const string ObjectSection = "Object Parameters";
+        public const string ObjectSurface = "Object Surface";
         public const string NormalMapOption = "NormalMap";
     }
 

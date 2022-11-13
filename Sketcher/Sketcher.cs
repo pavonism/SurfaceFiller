@@ -1,6 +1,7 @@
 ﻿using SketcherControl.Filling;
 using SketcherControl.Geometrics;
 using SketcherControl.Shapes;
+using System.IO;
 using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl
@@ -72,6 +73,19 @@ namespace SketcherControl
         {
             Refresh();
         }
+
+        public void LoadObjectFromFile(string fileName)
+        {
+            string fileContent;
+
+            using (StreamReader reader = new StreamReader(fileName))
+            {
+                fileContent = reader.ReadToEnd();
+            }
+
+            LoadObject(fileContent);
+        }
+
 
         public void LoadObject(string shapeObject)
         {

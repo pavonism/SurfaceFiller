@@ -17,7 +17,6 @@ namespace SurfaceFiller.Components
             AutoSize = false;
             Height = DividerHeight;
             Width = FormConstants.ToolbarWidth;
-            //Margin = new Padding(HorizontalPadding, 0, HorizontalPadding, 0);
         }
     }
 }

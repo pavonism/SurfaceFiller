@@ -1,6 +1,7 @@
 ﻿using SketcherControl;
 using SketcherControl.Filling;
 using SurfaceFiller.Components;
+using SurfaceFiller.Samples;
 using System.Drawing.Imaging;
 
 namespace SurfaceFiller
@@ -10,18 +11,26 @@ namespace SurfaceFiller
         private TableLayoutPanel mainTableLayout = new();
         private Toolbar toolbar = new() { Width = FormConstants.ToolbarWidth };
         private Sketcher sketcher = new();
+        private ComboPicker<BasicSample> objectCombo;
+        private ComboPickerWithImage<Sample> objectSurfaceCombo;
+        private ComboPickerWithImage<Sample> normalMapCombo;
+        private ColorSample colorSample;
 
         public MainForm()
         {
             InitializeToolbar();
             ArrangeComponents();
             InitializeForm();
+            LoadTextureSamples();
+            LoadNormalMapSamples();
+            LoadObjectSamples();
         }
 
         private void InitializeToolbar()
         {
             this.toolbar.AddLabel(Resources.ProgramTitle);
             this.toolbar.AddDivider();
+            this.objectCombo = this.toolbar.AddComboPicker<BasicSample>(ObjectPickedHandler);
             this.toolbar.AddButton(OpenFileHandler, Glyphs.File, Hints.OpenOBJ);
             this.toolbar.AddTool(FillHandler, Glyphs.Bucket, Hints.Fill);
             this.toolbar.AddSlider(ThreadsSlidrerHandler, Labels.ThreadSlider , 0.01f);
@@ -44,18 +53,69 @@ namespace SurfaceFiller
             this.toolbar.AddSlider(SunSpeedHanlder, Labels.Speed, 0.1f);
             this.toolbar.AddSlider(SunZLocationHandler, Labels.ZLocation, 0.5f);
             this.toolbar.AddDivider();
-            this.toolbar.AddLabel(Labels.ObjectSection);
+            this.toolbar.AddLabel(Labels.ObjectSurface);
+            this.objectSurfaceCombo = this.toolbar.AddComboImagePicker<Sample>(TexturePickedHandler);
             this.toolbar.AddButton(ObjectColorButton, Glyphs.Palette, Hints.ChangeObjectColor);
             this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
+            this.normalMapCombo = this.toolbar.AddComboImagePicker<Sample>(NormalMapPickedHandler);
             this.toolbar.AddButton(VectorMapHandler, Glyphs.File, Hints.LoadNormalMap);
+        }
+
+        private void ObjectPickedHandler(BasicSample newValue)
+        {
+            if (newValue is ObjectSample objectSample)
+            {
+                this.sketcher.LoadObjectFromFile(objectSample.Path);
+            }
+        }
+
+        private void NormalMapPickedHandler(Sample newValue)
+        {
+            if (newValue is PictureSample pictureSample)
+            {
+                this.sketcher.ColorPicker.NormalMap = pictureSample.Image;
+            }
+        }
+
+        private void TexturePickedHandler(Sample newValue)
+        {
+            if(newValue is PictureSample pictureSample)
+            {
+                this.sketcher.ColorPicker.Pattern = pictureSample.Image;
+            }
+            else if(newValue is ColorSample colorSample)
+            {
+                this.sketcher.ColorPicker.Pattern = null;
+                this.sketcher.ColorPicker.TargetColor = colorSample.Color;
+            }
+        }
+
+        private void LoadTextureSamples()
+        {
+            this.objectSurfaceCombo.AddOptions(SampleGenerator.GetTextures(Resources.TextureAssets, out this.colorSample));
+            this.objectSurfaceCombo.DefaultValue = this.colorSample;
+        }
+
+        private void LoadNormalMapSamples()
+        {
+            var samples = SampleGenerator.GetNormalMaps(Resources.NormalMapsAssets);
+            this.normalMapCombo.AddOptions(samples);
+            this.normalMapCombo.DefaultValue = samples.FirstOrDefault();
+        }
+
+        private void LoadObjectSamples()
+        {
+            var samples = SampleGenerator.GetObjectSamples(Resources.ObjectAssets);
+            this.objectCombo.AddOptions(samples);
+            this.objectCombo.DefaultValue = samples.FirstOrDefault();
         }
 
         private void VectorMapHandler(object? sender, EventArgs e)
         {
-            var normalMap = OpenLoadImageDialog();
+            var normalMapSample = OpenLoadImageDialog();
 
-            if (normalMap != null)
-                this.sketcher.ColorPicker.NormalMap = normalMap;
+            if (normalMapSample != null)
+                this.sketcher.ColorPicker.NormalMap = normalMapSample.Image;
         }
 
         private void MoveForwardHandler()
@@ -72,10 +132,13 @@ namespace SurfaceFiller
 
         private void LoadTextureHandlar(object? sender, EventArgs e)
         {
-            var texture = OpenLoadImageDialog();
+            var textureSample = OpenLoadImageDialog();
 
-            if (texture != null)
-                this.sketcher.ColorPicker.Pattern = texture;
+            if (textureSample != null)
+            {
+                this.sketcher.ColorPicker.Pattern = textureSample.Image;
+                this.objectSurfaceCombo.AddOption(textureSample);
+            }
         }
 
         private void NormalVectorsHandler(object? sender, EventArgs e)
@@ -97,7 +160,11 @@ namespace SurfaceFiller
 
             // Update the text box color if the user clicks OK 
             if (MyDialog.ShowDialog() == DialogResult.OK)
+            {
                 this.sketcher.ColorPicker.TargetColor = MyDialog.Color;
+                this.colorSample.Color = MyDialog.Color;
+                this.objectSurfaceCombo.Refresh();
+            }
         }
 
         private void ResetPositionButton(object? sender, EventArgs e)
@@ -208,10 +275,10 @@ namespace SurfaceFiller
             this.Controls.Add(mainTableLayout);
         }
 
-        private Bitmap? OpenLoadImageDialog()
+        private PictureSample? OpenLoadImageDialog()
         {
             var fileContent = string.Empty;
-            var filePath = string.Empty;
+            string filePath = string.Empty;
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -234,7 +301,7 @@ namespace SurfaceFiller
             }
 
             if (!string.IsNullOrWhiteSpace(filePath))
-                return new Bitmap(Image.FromFile(filePath));
+                return SampleGenerator.GetSample(filePath);
 
             return null;
         }

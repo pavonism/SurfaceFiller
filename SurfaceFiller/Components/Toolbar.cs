@@ -39,6 +39,11 @@ namespace SurfaceFiller.Components
             Controls.Add(new Divider());
         }
 
+        public void AddSpacing()
+        {
+            Controls.Add(new Spacing(5));
+        }
+
         private T AddSlider<T>(string labelText) where T : Slider, new()
         {
             var slider = new T()
@@ -152,6 +157,32 @@ namespace SurfaceFiller.Components
             checkBox.CheckedChanged += onOptionChanged;
             Controls.Add(table);
             return checkBox;
+        }
+
+        public ComboPickerWithImage<T> AddComboImagePicker<T>(Action<T> valuePickedHandler) where T : IComboItem
+        {
+            var combo = new ComboPickerWithImage<T>()
+            {
+                Width = this.Width - (int)(2.5 * FormConstants.MinimumControlSize),
+            };
+
+            combo.ValuePicked += valuePickedHandler;
+
+            Controls.Add(combo);
+            return combo;
+        }
+
+        public ComboPicker<T> AddComboPicker<T>(Action<T> valuePickedHandler)
+        {
+            var combo = new ComboPicker<T>()
+            {
+                Width = this.Width - (int)(2.5 * FormConstants.MinimumControlSize),
+            };
+
+            combo.ValuePicked += valuePickedHandler;
+
+            Controls.Add(combo);
+            return combo;
         }
     }
 }
