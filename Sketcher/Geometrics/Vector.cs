@@ -1,4 +1,5 @@
-﻿
+﻿using System.Runtime.CompilerServices;
+
 namespace SketcherControl.Geometrics
 {
     public struct Vector
@@ -129,7 +130,11 @@ namespace SketcherControl.Geometrics
 
         public static Color ToColor(this Vector vector)
         {
-            return Color.FromArgb((int)Math.Min(Math.Max(0, vector.X) * 255, 255), (int)Math.Min(Math.Max(0, vector.Y) * 255, 255), (int)Math.Min(Math.Max(0, vector.Z) * 255, 255));
+            var r = float.IsNaN(vector.X) || float.IsInfinity(vector.X) ? 255 : (int)Math.Min(Math.Max(0, vector.X) * 255, 255);
+            var g = float.IsNaN(vector.Y) || float.IsInfinity(vector.Y) ? 255 : (int)Math.Min(Math.Max(0, vector.Y) * 255, 255);
+            var b = float.IsNaN(vector.Z) || float.IsInfinity(vector.Z) ? 255 : (int)Math.Min(Math.Max(0, vector.Z) * 255, 255);
+
+            return Color.FromArgb(r, g, b);
         }
     }
 }

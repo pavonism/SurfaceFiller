@@ -41,7 +41,6 @@ namespace SketcherControl.Shapes
 
         private void RenderCoordinatesChangedHandler()
         {
-            Area = ((Vertices[1].RenderLocation - Vertices[0].RenderLocation) | (Vertices[2].RenderLocation - Vertices[0].RenderLocation)).Length / 2;
             CoefficientsCache.Clear();
             NormalVectorsCache.Clear();
         }

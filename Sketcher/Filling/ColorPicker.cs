@@ -284,18 +284,24 @@ namespace SketcherControl.Filling
         {
             var pixelLocation = new Vector(x, y, 0);
             var coefficients = new float[polygon.VertexCount];
+            var areas = new float[polygon.VertexCount];
+            float sum = 0;
+
             for (int i = 0; i < polygon.Vertices.Length; i++)
             {
-                var a = (polygon.Vertices[i].RenderLocation - pixelLocation).Length;
-                var b = (polygon.Vertices[(i + 1) % polygon.VertexCount].RenderLocation - pixelLocation).Length;
-                var c = (polygon.Vertices[i].RenderLocation - polygon.Vertices[(i + 1) % polygon.VertexCount].RenderLocation).Length;
-                var s = (a + b + c) / 2;
-                var smallArea = (float)Math.Sqrt(s * (s - a) * (s - b) * (s - c));
-                //var smallArea = ((vertex[i].RenderLocation - pixelLocation) | (vertex[(i + 1) % vertex.Length].RenderLocation - pixelLocation)).Length / 2;
-                coefficients[i] = smallArea / polygon.Area;
+                var xBA = polygon.Vertices[i].RenderX - polygon.Vertices[(i + 1) % polygon.VertexCount].RenderX;
+                var yCA = pixelLocation.Y - polygon.Vertices[(i + 1) % polygon.VertexCount].RenderY;
+                var yBA = polygon.Vertices[i].RenderY - polygon.Vertices[(i + 1) % polygon.VertexCount].RenderY;
+                var xCA = pixelLocation.X - polygon.Vertices[(i + 1) % polygon.VertexCount].RenderX;
+                var area = 0.5f * Math.Abs(xBA * yCA - yBA * xCA);
 
-                if (s * (s - a) * (s - b) * (s - c) < 0)
-                    coefficients[i] = 0;
+                sum += area;
+                areas[i] = area;
+            }
+
+            for (int i = 0; i < polygon.Vertices.Length; i++)
+            {
+                coefficients[i] = areas[i] / sum;
             }
 
             polygon.CoefficientsCache.Add((x, y), coefficients);
