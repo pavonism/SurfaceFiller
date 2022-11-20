@@ -1,5 +1,4 @@
 ﻿using SketcherControl;
-using System.IO;
 
 namespace SurfaceFiller.Samples
 {
@@ -54,6 +53,11 @@ namespace SurfaceFiller.Samples
         {
             Bitmap bmp = new Bitmap(Image.FromFile(path));
             return new PictureSample(bmp, Path.GetFileNameWithoutExtension(path));
+        }
+
+        public static ObjectSample CreateObjectSample(string path)
+        {
+            return new ObjectSample(path, Path.GetFileNameWithoutExtension(path));
         }
 
         public static ColorSample CreateColorSample()

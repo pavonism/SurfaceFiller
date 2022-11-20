@@ -52,6 +52,17 @@ namespace SurfaceFiller.Components
             Items.Add(newOption);
         }
 
+        public void Select(T option)
+        {
+            this.SelectedIndex = Items.IndexOf(option);
+        }
+
+        public void AddAndSelect(T newOption)
+        {
+            Items.Add(newOption);
+            Select(newOption);
+        }
+
         public event Action<T>? ValuePicked;
 
         public ComboPicker()

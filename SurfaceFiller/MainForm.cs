@@ -26,6 +26,7 @@ namespace SurfaceFiller
             LoadObjectSamples();
         }
 
+        #region Initialization
         private void InitializeToolbar()
         {
             this.toolbar.AddLabel(Resources.ProgramTitle);
@@ -33,34 +34,54 @@ namespace SurfaceFiller
             this.objectCombo = this.toolbar.AddComboPicker<BasicSample>(ObjectPickedHandler);
             this.toolbar.AddButton(OpenFileHandler, Glyphs.File, Hints.OpenOBJ);
             this.toolbar.AddTool(FillHandler, Glyphs.Bucket, Hints.Fill);
-            this.toolbar.AddSlider(ThreadsSlidrerHandler, Labels.ThreadSlider , 0.01f);
+            this.toolbar.AddSlider(ThreadsSlidrerHandler, Labels.ThreadSlider , Defaults.ThreadsCount);
             this.toolbar.AddDivider();
             this.toolbar.AddOption(Labels.ShowLinesOption, ShowLinesHandler);
             this.toolbar.AddOption(Labels.NormalVectorsOption, NormalVectorsHandler);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.ModelParameters);
-            this.toolbar.AddFractSlider(KDParameterHandler, Labels.KDParameter, 0.5f);
-            this.toolbar.AddFractSlider(KSParameterHandler, Labels.KSParameter, 0.5f);
-            this.toolbar.AddSlider(MParameterHandler, Labels.MParameter, 0.5f);
+            this.toolbar.AddFractSlider(KDParameterHandler, Labels.KDParameter, Defaults.KDParameter);
+            this.toolbar.AddFractSlider(KSParameterHandler, Labels.KSParameter, Defaults.KSParameter);
+            this.toolbar.AddSlider(MParameterHandler, Labels.MParameter, Defaults.MParameter);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.LightSection);
             this.toolbar.AddPlayPouse(SunHandler, string.Empty, true);
             this.toolbar.AddProcessButton(RewindHandler, Glyphs.Rewind, string.Empty);
             this.toolbar.AddProcessButton(MoveForwardHandler, Glyphs.Forward, string.Empty);
-            this.toolbar.AddButton(ColorButton, Glyphs.Palette, Hints.ChangeLightColor);
+            this.toolbar.AddButton(LightColorButtonHandler, Glyphs.Palette, Hints.ChangeLightColor);
             this.toolbar.AddTool(ShowTrackHandler, Glyphs.Spiral, Hints.ShowTrack);
-            this.toolbar.AddButton(ResetPositionButton, Glyphs.Reset, Hints.ResetPosition);
-            this.toolbar.AddSlider(SunSpeedHanlder, Labels.Speed, 0.1f);
-            this.toolbar.AddSlider(SunZLocationHandler, Labels.ZLocation, 0.5f);
+            this.toolbar.AddButton(ResetPositionButtonHandler, Glyphs.Reset, Hints.ResetPosition);
+            this.toolbar.AddSlider(SunSpeedHanlder, Labels.Speed, Defaults.AnimationSpeed);
+            this.toolbar.AddSlider(SunZLocationHandler, Labels.ZLocation, Defaults.LightLocationZ);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.ObjectSurface);
             this.objectSurfaceCombo = this.toolbar.AddComboImagePicker<Sample>(TexturePickedHandler);
-            this.toolbar.AddButton(ObjectColorButton, Glyphs.Palette, Hints.ChangeObjectColor);
+            this.toolbar.AddButton(ObjectColorButtonHandler, Glyphs.Palette, Hints.ChangeObjectColor);
             this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
             this.normalMapCombo = this.toolbar.AddComboImagePicker<Sample>(NormalMapPickedHandler);
             this.toolbar.AddButton(VectorMapHandler, Glyphs.File, Hints.LoadNormalMap);
         }
 
+        private void InitializeForm()
+        {
+            this.Text = Resources.ProgramTitle;
+            this.MinimumSize = new Size(FormConstants.MinimumWindowSizeX, FormConstants.MinimumWindowSizeY);
+            this.Size = new Size(FormConstants.InitialWindowSizeX, FormConstants.InitialWindowSizeY);
+        }
+
+        private void ArrangeComponents()
+        {
+            this.mainTableLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+            this.mainTableLayout.ColumnCount = FormConstants.MainFormColumnCount;
+
+            this.mainTableLayout.Controls.Add(this.sketcher, 1, 0);
+            this.mainTableLayout.Controls.Add(this.toolbar, 0, 0);
+            this.mainTableLayout.Dock = DockStyle.Fill;
+            this.Controls.Add(mainTableLayout);
+        }
+        #endregion
+
+        #region Handlers 
         private void ObjectPickedHandler(BasicSample newValue)
         {
             if (newValue is ObjectSample objectSample)
@@ -90,32 +111,15 @@ namespace SurfaceFiller
             }
         }
 
-        private void LoadTextureSamples()
-        {
-            this.objectSurfaceCombo.AddOptions(SampleGenerator.GetTextures(Resources.TextureAssets, out this.colorSample));
-            this.objectSurfaceCombo.DefaultValue = this.colorSample;
-        }
-
-        private void LoadNormalMapSamples()
-        {
-            var samples = SampleGenerator.GetNormalMaps(Resources.NormalMapsAssets);
-            this.normalMapCombo.AddOptions(samples);
-            this.normalMapCombo.DefaultValue = samples.FirstOrDefault();
-        }
-
-        private void LoadObjectSamples()
-        {
-            var samples = SampleGenerator.GetObjectSamples(Resources.ObjectAssets);
-            this.objectCombo.AddOptions(samples);
-            this.objectCombo.DefaultValue = samples.FirstOrDefault();
-        }
-
         private void VectorMapHandler(object? sender, EventArgs e)
         {
             var normalMapSample = OpenLoadImageDialog();
 
             if (normalMapSample != null)
+            {
                 this.sketcher.ColorPicker.NormalMap = normalMapSample.Image;
+                this.normalMapCombo.AddAndSelect(normalMapSample);
+            }
         }
 
         private void MoveForwardHandler()
@@ -137,7 +141,7 @@ namespace SurfaceFiller
             if (textureSample != null)
             {
                 this.sketcher.ColorPicker.Pattern = textureSample.Image;
-                this.objectSurfaceCombo.AddOption(textureSample);
+                this.objectSurfaceCombo.AddAndSelect(textureSample);
             }
         }
 
@@ -151,43 +155,9 @@ namespace SurfaceFiller
             this.sketcher.RenderThreads = (int)(value * 100);
         }
 
-        private void ObjectColorButton(object? sender, EventArgs e)
-        {
-            ColorDialog MyDialog = new ColorDialog();
-            MyDialog.AllowFullOpen = true;
-            MyDialog.ShowHelp = true;
-            MyDialog.Color = this.sketcher.LightSource.LightSourceColor;
-
-            // Update the text box color if the user clicks OK 
-            if (MyDialog.ShowDialog() == DialogResult.OK)
-            {
-                this.sketcher.ColorPicker.TargetColor = MyDialog.Color;
-                this.colorSample.Color = MyDialog.Color;
-                this.objectSurfaceCombo.Refresh();
-            }
-        }
-
-        private void ResetPositionButton(object? sender, EventArgs e)
-        {
-            this.sketcher.LightSource.Reset();
-        }
-
         private void ShowTrackHandler(bool obj)
         {
             this.sketcher.LightSource.ShowTrack = !this.sketcher.LightSource.ShowTrack;
-        }
-
-        private void ColorButton(object? sender, EventArgs e)
-        {
-
-            ColorDialog MyDialog = new ColorDialog();
-            MyDialog.AllowFullOpen = true;
-            MyDialog.ShowHelp = true;
-            MyDialog.Color = this.sketcher.LightSource.LightSourceColor;
-
-            // Update the text box color if the user clicks OK 
-            if (MyDialog.ShowDialog() == DialogResult.OK)
-                this.sketcher.LightSource.LightSourceColor = MyDialog.Color;
         }
 
         private void MParameterHandler(float newValue)
@@ -234,7 +204,7 @@ namespace SurfaceFiller
 
         private void OpenFileHandler(object? sender, EventArgs e)
         {
-            var fileContent = string.Empty;
+            var fileName = string.Empty;
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -243,36 +213,72 @@ namespace SurfaceFiller
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var fileStream = openFileDialog.OpenFile();
-
-                    using (StreamReader reader = new StreamReader(fileStream))
-                    {
-                        fileContent = reader.ReadToEnd();
-                    }
+                    fileName = openFileDialog.FileName;
                 }
             }
 
-            this.sketcher.LoadObject(fileContent);
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                this.sketcher.LoadObjectFromFile(fileName);
+                this.objectCombo.AddAndSelect(SampleGenerator.CreateObjectSample(fileName));
+            }
         }
 
-        private void InitializeForm()
+        private void ResetPositionButtonHandler(object? sender, EventArgs e)
         {
-            this.Text = Resources.ProgramTitle;
-            this.MinimumSize = new Size(FormConstants.MinimumWindowSizeX, FormConstants.MinimumWindowSizeY);
-            this.Size = new Size(FormConstants.InitialWindowSizeX, FormConstants.InitialWindowSizeY);
+            this.sketcher.LightSource.Reset();
         }
 
-        private void ArrangeComponents()
+        private void LightColorButtonHandler(object? sender, EventArgs e)
         {
-            this.mainTableLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
-            this.mainTableLayout.ColumnCount = FormConstants.MainFormColumnCount;
-            //this.mainTableLayout.ColumnStyles.Add(new ColumnStyle() { Width = FormConstants.ToolbarWidth });
-            //this.mainTableLayout.ColumnStyles.Add(new ColumnStyle() { Width = 1, SizeType = SizeType.AutoSize });
 
-            this.mainTableLayout.Controls.Add(this.sketcher, 1, 0);
-            this.mainTableLayout.Controls.Add(this.toolbar, 0, 0);
-            this.mainTableLayout.Dock = DockStyle.Fill;
-            this.Controls.Add(mainTableLayout);
+            ColorDialog MyDialog = new ColorDialog();
+            MyDialog.AllowFullOpen = true;
+            MyDialog.ShowHelp = true;
+            MyDialog.Color = this.sketcher.LightSource.LightSourceColor;
+
+            // Update the text box color if the user clicks OK 
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+                this.sketcher.LightSource.LightSourceColor = MyDialog.Color;
+        }
+
+        private void ObjectColorButtonHandler(object? sender, EventArgs e)
+        {
+            ColorDialog MyDialog = new ColorDialog();
+            MyDialog.AllowFullOpen = true;
+            MyDialog.ShowHelp = true;
+            MyDialog.Color = this.sketcher.LightSource.LightSourceColor;
+
+            // Update the text box color if the user clicks OK 
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+            {
+                this.sketcher.ColorPicker.TargetColor = MyDialog.Color;
+                this.colorSample.Color = MyDialog.Color;
+                this.objectSurfaceCombo.Select(colorSample);
+                this.objectSurfaceCombo.Refresh();
+            }
+        }
+        #endregion
+
+        #region Loading Samples
+        private void LoadTextureSamples()
+        {
+            this.objectSurfaceCombo.AddOptions(SampleGenerator.GetTextures(Resources.TextureAssets, out this.colorSample));
+            this.objectSurfaceCombo.DefaultValue = this.colorSample;
+        }
+
+        private void LoadNormalMapSamples()
+        {
+            var samples = SampleGenerator.GetNormalMaps(Resources.NormalMapsAssets);
+            this.normalMapCombo.AddOptions(samples);
+            this.normalMapCombo.DefaultValue = samples.FirstOrDefault();
+        }
+
+        private void LoadObjectSamples()
+        {
+            var samples = SampleGenerator.GetObjectSamples(Resources.ObjectAssets);
+            this.objectCombo.AddOptions(samples);
+            this.objectCombo.DefaultValue = samples.FirstOrDefault();
         }
 
         private PictureSample? OpenLoadImageDialog()
@@ -305,5 +311,6 @@ namespace SurfaceFiller
 
             return null;
         }
+        #endregion
     }
 }

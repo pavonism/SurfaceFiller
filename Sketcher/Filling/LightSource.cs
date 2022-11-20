@@ -1,11 +1,11 @@
 ﻿using SketcherControl.Geometrics;
-using System.Security.Cryptography.Xml;
 using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl.Filling
 {
     public class LightSource
     {
+        #region Fields and Events
         public IRenderer Renderer { get; private set; }
 
         public event Action? LightSourceChanged;
@@ -23,7 +23,9 @@ namespace SketcherControl.Filling
         private bool showTrack;
         private MoveDirection moveDirection = MoveDirection.Forward;
         private Timer timer = new();
+        #endregion
 
+        #region Properties
         public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, 1f + 5f * lightLocationZ);
 
         public bool ShowTrack
@@ -118,7 +120,9 @@ namespace SketcherControl.Filling
 
         public Vector LightSourceVector => this.lightSourceColor;
         public Vector CanvasCoordinates => new Vector(xSun, ySun, LightLocationZ);
+        #endregion Properties
 
+        #region Initialization
         public LightSource(IRenderer renderer)
         {
             this.Renderer = renderer;
@@ -129,14 +133,16 @@ namespace SketcherControl.Filling
             this.timer.Tick += Timer_Tick;
             timer.Start();
         }
+        #endregion
 
+        #region Rendering
         public void Render(DirectBitmap canvas)
         {
             if (Renderer.Size.Width > xSun && xSun > 0 && ySun > 0 && ySun < Renderer.Size.Height)
                 using (var g = Graphics.FromImage(canvas.Bitmap))
                 {
                     var size = TextRenderer.MeasureText(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold));
-                    var brush = /*LightSourceColor == Color.White ? */Brushes.Gold/* : new SolidBrush(LightSourceColor)*/;
+                    var brush = Brushes.Gold;
                     g.DrawString(SketcherConstants.LightSource, new Font(Control.DefaultFont.Name, 20, FontStyle.Bold), brush, xSun - size.Width / 2, ySun - size.Height / 2);
                 }
 
@@ -147,7 +153,7 @@ namespace SketcherControl.Filling
                 while (currentAngle < this.lightAngle)
                 {
                     var omega = SketcherConstants.LightSourceSpeedCoefficient * LightSpeed / (float)(2 * Math.PI * DistanceFromStart(xSun, ySun));
-                    currentAngle += Math.Max(omega, SketcherConstants.MinSunAngleIncrease) * this.timer.Interval / 1000;
+                    currentAngle += Math.Max(omega, SketcherConstants.MinLightAngleIncrease) * this.timer.Interval / 1000;
                     currentXLight = 4 * (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
                     currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * LightLocationY);
 
@@ -158,6 +164,20 @@ namespace SketcherControl.Filling
             }
         }
 
+        public bool HitTest(int x, int y)
+        {
+            return Math.Pow(Math.Abs(x - xSun), 2) + Math.Pow(Math.Abs(y - ySun), 2) <= Math.Pow(SketcherConstants.LightHitTestRadius, 2);
+        }
+
+        public void MoveTo(int x, int y)
+        {
+            Reset();
+            LightLocationX = (float)x / Renderer.Size.Width;
+            LightLocationY = 1 - (float)y / Renderer.Size.Height;
+        }
+        #endregion
+
+        #region Animation
         private void Timer_Tick(object? sender, EventArgs e)
         {
             MoveLight(moveDirection == MoveDirection.Backward);
@@ -214,19 +234,7 @@ namespace SketcherControl.Filling
             this.lightAngle = 0f;
             this.LightSourceChanged?.Invoke();
         }
-
-
-        public bool HitTest(int x, int y)
-        {
-            return Math.Pow(Math.Abs(x - xSun), 2) + Math.Pow(Math.Abs(y - ySun), 2) <= Math.Pow(SketcherConstants.LightHitTestRadius, 2);
-        }
-
-        public void MoveTo(int x, int y)
-        {
-            Reset();
-            LightLocationX = (float)x / Renderer.Size.Width;
-            LightLocationY = 1 - (float)y / Renderer.Size.Height;
-        }
+        #endregion
     }
 
     internal enum MoveDirection

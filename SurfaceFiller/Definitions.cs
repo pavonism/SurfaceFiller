@@ -1,8 +1,17 @@
 ﻿
-using SurfaceFiller.Components;
-
 namespace SurfaceFiller
 {
+    public static class Defaults
+    {
+        public const float ThreadsCount = 0.5f;
+        public const float KDParameter = 0.5f;
+        public const float KSParameter = 0.5f;
+        public const float MParameter = 0.5f;
+
+        public const float AnimationSpeed = 0.1f;
+        public const float LightLocationZ = 0.5f;
+    }
+
     public static class Resources
     {
         public const string ProgramTitle = "SurfaceFiller  \u25B2";

@@ -5,6 +5,7 @@ namespace SketcherControl.Filling
 {
     public class ColorPicker
     {
+        #region Fields and Events
         public event Action? ParametersChanged;
 
         private Interpolation interpolationMode;
@@ -16,7 +17,9 @@ namespace SketcherControl.Filling
         private Vector v = new(0, 0, 1);
         private DirectBitmap? texture;
         private DirectBitmap? normalMap;
-        
+        #endregion
+
+        #region Properties
         public Interpolation InterpolationMode
         {
             get => this.interpolationMode;
@@ -119,11 +122,16 @@ namespace SketcherControl.Filling
                 ParametersChanged?.Invoke();
             }
         }
+        #endregion
 
+        #region Initialization
         public ColorPicker(LightSource lightSource)
         {
             this.lightSource = lightSource;
         }
+        #endregion
+
+        #region Logic
 
         public void StartFillingTriangle(IEnumerable<Vertex> vertices)
         {
@@ -293,5 +301,6 @@ namespace SketcherControl.Filling
             polygon.CoefficientsCache.Add((x, y), coefficients);
             return coefficients;
         }
+        #endregion Logic
     }
 }

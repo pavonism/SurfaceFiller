@@ -1,6 +1,4 @@
 ﻿
-using System.Runtime.CompilerServices;
-
 namespace SketcherControl.Geometrics
 {
     public struct Vector

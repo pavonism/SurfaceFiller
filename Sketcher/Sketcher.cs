@@ -1,7 +1,6 @@
 ﻿using SketcherControl.Filling;
 using SketcherControl.Geometrics;
 using SketcherControl.Shapes;
-using System.IO;
 using Timer = System.Windows.Forms.Timer;
 
 namespace SketcherControl
@@ -25,7 +24,7 @@ namespace SketcherControl
         private bool lightIsMoving;
 
         public int RenderThreads { get; set; }
-        public LightSource LightSource { get; private set; }
+        public LightSource LightSource { get; }
         public ColorPicker ColorPicker { get; }
         public bool Fill { get; set; } = true;
 
@@ -58,22 +57,7 @@ namespace SketcherControl
             ColorPicker.ParametersChanged += ParametersChangedHandler;
         }
 
-        private void ResizeTimerHandler(object? sender, EventArgs e)
-        {
-            this.resizeTimer.Stop();
-            BitmpapSize = new Size(this.Width, this.Height);
-            SetRenderScale();
-            this.LightSource.LightAnimation = this.wasAnimationTurnedOn;
-            this.freeze = false;
-            LightSource.RecalculateLightCoordinates();
-            Refresh();
-        }
-
-        private void ParametersChangedHandler()
-        {
-            Refresh();
-        }
-
+        #region Loading Object
         public void LoadObjectFromFile(string fileName)
         {
             string fileContent;
@@ -126,19 +110,25 @@ namespace SketcherControl
             SetRenderScale();
             Refresh();
         }
+        #endregion
 
+        #region Rendering
+        private void ParametersChangedHandler()
+        {
+            Refresh();
+        }
 
         private Task FillAsync(int start, int step)
         {
             return Task.Run(
-        () =>
-        {
-            for (int j = start; j < start + step && j < this.triangles.Count; j++)
-            {
-                ScanLine.Fill(this.triangles[j], canvas, ColorPicker);
+                () =>
+                {
+                    for (int j = start; j < start + step && j < this.triangles.Count; j++)
+                    {
+                        ScanLine.Fill(this.triangles[j], canvas, ColorPicker);
 
-            }
-        });
+                    }
+                });
         }
 
         public override void Refresh()
@@ -182,6 +172,17 @@ namespace SketcherControl
             base.Refresh();
         }
 
+        private void ResizeTimerHandler(object? sender, EventArgs e)
+        {
+            this.resizeTimer.Stop();
+            BitmpapSize = new Size(this.Width, this.Height);
+            SetRenderScale();
+            this.LightSource.LightAnimation = this.wasAnimationTurnedOn;
+            this.freeze = false;
+            LightSource.RecalculateLightCoordinates();
+            Refresh();
+        }
+
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
@@ -213,6 +214,7 @@ namespace SketcherControl
                 Z = z,
             };
         }
+        #endregion
 
         #region Overrides
         protected override void OnMouseDown(MouseEventArgs e)
