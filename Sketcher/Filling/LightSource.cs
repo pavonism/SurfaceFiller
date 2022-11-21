@@ -26,7 +26,8 @@ namespace SketcherControl.Filling
         #endregion
 
         #region Properties
-        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, 1f + 5f * lightLocationZ);
+        public float MinZ { get; set; } = 1f;
+        public Vector Location => Renderer.Unscale(xSun, Renderer.Size.Height - ySun, MinZ + 3 * MinZ * lightLocationZ);
 
         public bool ShowTrack
         {
@@ -154,8 +155,8 @@ namespace SketcherControl.Filling
                 {
                     var omega = SketcherConstants.LightSourceSpeedCoefficient * LightSpeed / (float)(2 * Math.PI * DistanceFromStart(xSun, ySun));
                     currentAngle += Math.Max(omega, SketcherConstants.MinLightAngleIncrease) * this.timer.Interval / 1000;
-                    currentXLight = 4 * (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
-                    currentYLight = 4 * (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * LightLocationY);
+                    currentXLight = (int)(Math.Cos(currentAngle) * currentAngle) + (int)(Renderer.Size.Width * LightLocationX);
+                    currentYLight = (int)(Math.Sin(currentAngle) * currentAngle) + (int)(Renderer.Size.Height * LightLocationY);
 
                     if (Renderer.Size.Width <= currentXLight || currentXLight <= 0 || currentYLight <= 0 || currentYLight >= Renderer.Size.Height)
                         continue;
@@ -208,8 +209,8 @@ namespace SketcherControl.Filling
 
         public void RecalculateLightCoordinates()
         {
-            xSun = 4 * (int)(Math.Cos(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Width * LightLocationX);
-            ySun = 4 * (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * LightLocationY);
+            xSun =  (int)(Math.Cos(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Width * LightLocationX);
+            ySun = (int)(Math.Sin(lightAngle) * this.lightAngle) + (int)(Renderer.Size.Height * LightLocationY);
 
             if (xSun <= 0 || xSun >= Renderer.Size.Width || ySun <= 0 || ySun >= Renderer.Size.Height)
             {

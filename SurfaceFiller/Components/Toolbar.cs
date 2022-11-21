@@ -1,4 +1,8 @@
 ﻿
+using Microsoft.VisualBasic.Devices;
+using System.Diagnostics.CodeAnalysis;
+using System.Windows.Forms;
+
 namespace SurfaceFiller.Components
 {
     /// <summary>
@@ -6,6 +10,8 @@ namespace SurfaceFiller.Components
     /// </summary>
     public class Toolbar : FlowLayoutPanel
     {
+        private TableLayoutPanel? currentRadioBox;
+
         public Toolbar()
         {
             Dock = DockStyle.Fill;
@@ -57,8 +63,11 @@ namespace SurfaceFiller.Components
             return slider;
         }
 
-        private void AddTooltip(Control control, string hint)
+        private void AddTooltip(Control control, string? hint = null)
         {
+            if (hint == null)
+                return;
+
             var tooltip = new ToolTip();
             tooltip.SetToolTip(control, hint);
         }
@@ -85,22 +94,23 @@ namespace SurfaceFiller.Components
             slider.Value = defaultValue;
         }
 
-        public void AddPlayPouse(Action<bool> handler, string hint, bool defaultState)
+        public void AddPlayPouse(Action<bool> handler, bool defaultState, string? hint = null)
         {
             var button = new PlayPouseButton();
             button.Lock = defaultState;
+            AddTooltip(button, hint);
             button.OnOptionChanged += handler;
             Controls.Add(button);
         }
 
-        public void AddProcessButton(Action handler, string glyph, string hint)
+        public void AddProcessButton(Action handler, string glyph, string? hint = null)
         {
             var button = new ProcessButton(handler) { Text = glyph };
             AddTooltip(button, hint);
             Controls.Add(button);
         }
 
-        public Button AddButton(EventHandler handler, string glyph, string hint)
+        public Button AddButton(EventHandler handler, string glyph, string? hint = null)
         {
             var button = new OptionButton()
             {
@@ -115,7 +125,7 @@ namespace SurfaceFiller.Components
             return button;
         }
 
-        public CheckButton AddTool(Action<bool> handler, string glyph, string hint)
+        public CheckButton AddTool(Action<bool> handler, string glyph, string? hint = null)
         {
             var button = new CheckButton()
             {
@@ -132,7 +142,7 @@ namespace SurfaceFiller.Components
             return button;
         }
 
-        public CheckBox AddOption(string text, EventHandler onOptionChanged, string? hint = null)
+        public CheckBox AddOption(EventHandler onOptionChanged, string text, string? hint = null)
         {
             var checkBox = new CheckBox()
             {
@@ -148,11 +158,7 @@ namespace SurfaceFiller.Components
             };
             table.Controls.Add(checkBox);
 
-
-            if (hint != null)
-            {
-                AddTooltip(checkBox, hint);
-            }
+            AddTooltip(checkBox, hint);
 
             checkBox.CheckedChanged += onOptionChanged;
             Controls.Add(table);
@@ -183,6 +189,37 @@ namespace SurfaceFiller.Components
 
             Controls.Add(combo);
             return combo;
+        }
+
+        public void CreateNewRadioBox()
+        {
+            this.currentRadioBox = new TableLayoutPanel()
+            {
+                Dock = DockStyle.Top,
+            };
+
+            Controls.Add(this.currentRadioBox);
+        }
+
+        public void AddRadioOption(EventHandler clickHandler, string label, string? hint = null, bool? selected = null)
+        {
+            if (this.currentRadioBox == null)
+                throw new Exception("RadioBox not found! Try to use CreateNewRadioBox()");
+
+            var radio = new RadioButton()
+            {
+                Text = label,
+                Width = this.Width,
+            };
+
+            if (selected.HasValue)
+                radio.Checked = selected.Value;
+
+            radio.Click += clickHandler;
+
+            AddTooltip(radio, hint);
+            this.currentRadioBox.Controls.Add(radio);
+            this.currentRadioBox.Height = this.currentRadioBox.Controls.Count * FormConstants.MinimumControlSize;
         }
     }
 }

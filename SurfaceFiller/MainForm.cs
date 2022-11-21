@@ -34,10 +34,12 @@ namespace SurfaceFiller
             this.objectCombo = this.toolbar.AddComboPicker<BasicSample>(ObjectPickedHandler);
             this.toolbar.AddButton(OpenFileHandler, Glyphs.File, Hints.OpenOBJ);
             this.toolbar.AddTool(FillHandler, Glyphs.Bucket, Hints.Fill);
-            this.toolbar.AddSlider(ThreadsSlidrerHandler, Labels.ThreadSlider , Defaults.ThreadsCount);
+            this.toolbar.AddSlider(ThreadsSlidrerHandler, Labels.ThreadSlider, Defaults.ThreadsCount);
             this.toolbar.AddDivider();
-            this.toolbar.AddOption(Labels.ShowLinesOption, ShowLinesHandler);
-            this.toolbar.AddOption(Labels.NormalVectorsOption, NormalVectorsHandler);
+            this.toolbar.AddOption(ShowLinesHandler, Labels.ShowLinesOption, Hints.ShowLines);
+            this.toolbar.CreateNewRadioBox();
+            this.toolbar.AddRadioOption(ColorInterpolationOptionHandler, Labels.ColorInterpolationOption, Hints.ColorInterpolation, true);
+            this.toolbar.AddRadioOption(VectorInterpolationOptionHandler, Labels.VectorsInterpolationOption, Hints.VectorInterpolation);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.ModelParameters);
             this.toolbar.AddFractSlider(KDParameterHandler, Labels.KDParameter, Defaults.KDParameter);
@@ -45,9 +47,9 @@ namespace SurfaceFiller
             this.toolbar.AddSlider(MParameterHandler, Labels.MParameter, Defaults.MParameter);
             this.toolbar.AddDivider();
             this.toolbar.AddLabel(Labels.LightSection);
-            this.toolbar.AddPlayPouse(SunHandler, string.Empty, true);
-            this.toolbar.AddProcessButton(RewindHandler, Glyphs.Rewind, string.Empty);
-            this.toolbar.AddProcessButton(MoveForwardHandler, Glyphs.Forward, string.Empty);
+            this.toolbar.AddPlayPouse(SunHandler, true);
+            this.toolbar.AddProcessButton(RewindHandler, Glyphs.Rewind);
+            this.toolbar.AddProcessButton(MoveForwardHandler, Glyphs.Forward);
             this.toolbar.AddButton(LightColorButtonHandler, Glyphs.Palette, Hints.ChangeLightColor);
             this.toolbar.AddTool(ShowTrackHandler, Glyphs.Spiral, Hints.ShowTrack);
             this.toolbar.AddButton(ResetPositionButtonHandler, Glyphs.Reset, Hints.ResetPosition);
@@ -82,6 +84,16 @@ namespace SurfaceFiller
         #endregion
 
         #region Handlers 
+        private void VectorInterpolationOptionHandler(object? sender, EventArgs e)
+        {
+            this.sketcher.ColorPicker.InterpolationMode = Interpolation.NormalVector;
+        }
+
+        private void ColorInterpolationOptionHandler(object? sender, EventArgs e)
+        {
+            this.sketcher.ColorPicker.InterpolationMode = Interpolation.Color;
+        }
+
         private void ObjectPickedHandler(BasicSample newValue)
         {
             if (newValue is ObjectSample objectSample)

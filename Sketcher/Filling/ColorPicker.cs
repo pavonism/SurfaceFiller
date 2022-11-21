@@ -142,7 +142,8 @@ namespace SketcherControl.Filling
                     foreach (var vertex in vertices)
                     {
                         var textureColor = texture?.GetPixel(((int)vertex.RenderX + texture.Width / 2) % texture.Width, ((int)vertex.RenderY + texture.Height / 2) % texture.Height).ToVector();
-                        vertex.Color = CalculateColorInPoint(vertex.Location, vertex.NormalVector, textureColor);
+                        var normalVector = NormalMap != null ? GetNormalVectorFromNormalMap((int)vertex.RenderX, (int)vertex.RenderY, vertex.NormalVector) : vertex.NormalVector;
+                        vertex.Color = CalculateColorInPoint(vertex.Location, normalVector, textureColor);
                     }
                     break;
                 case Interpolation.NormalVector:
@@ -181,9 +182,6 @@ namespace SketcherControl.Filling
             if (bc > 1) bc = 1;
 
             return Color.FromArgb((int)(rc * 255), (int)(gc * 255), (int)(bc * 255));
-            //Vector color = vertex[0].Color.ToVector() * coefficients[0] + vertex[1].Color.ToVector() * coefficients[1] + vertex[2].Color.ToVector() * coefficients[2];
-
-            //return color.ToColor();
         }
 
         private Color GetColorWithVectorInterpolation(Polygon polygon, int x, int y)

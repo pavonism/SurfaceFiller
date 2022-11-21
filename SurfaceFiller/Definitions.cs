@@ -4,12 +4,12 @@ namespace SurfaceFiller
     public static class Defaults
     {
         public const float ThreadsCount = 0.5f;
-        public const float KDParameter = 0.5f;
-        public const float KSParameter = 0.5f;
+        public const float KDParameter = 0.8f;
+        public const float KSParameter = 0.3f;
         public const float MParameter = 0.5f;
 
         public const float AnimationSpeed = 0.1f;
-        public const float LightLocationZ = 0.5f;
+        public const float LightLocationZ = 0.2f;
     }
 
     public static class Resources
@@ -25,10 +25,10 @@ namespace SurfaceFiller
     public static class FormConstants
     {
         public const int MinimumWindowSizeX = 700;
-        public const int MinimumWindowSizeY = 700;
+        public const int MinimumWindowSizeY = 750;
 
         public const int InitialWindowSizeX = 900;
-        public const int InitialWindowSizeY = 700;
+        public const int InitialWindowSizeY = 750;
 
         public const int MainFormColumnCount = 2;
         public const int MinimumControlSize = 32;
@@ -41,7 +41,8 @@ namespace SurfaceFiller
     {
         public const string ThreadSlider = "Threads";
         public const string ShowLinesOption = "Show lines";
-        public const string NormalVectorsOption = "Normal Vectors";
+        public const string VectorsInterpolationOption = "Vectors Interpolation";
+        public const string ColorInterpolationOption = "Color Interpolation";
         public const string ModelParameters = "Model Parameters";
         public const string KDParameter = "KD =";
         public const string KSParameter = "KS =";
@@ -72,6 +73,9 @@ namespace SurfaceFiller
     {
         public const string OpenOBJ = "Załaduj powierzchnię z pliku *.obj";
         public const string Fill = "Włącz / wyłącz wypełenienie powierzchni";
+        public const string ShowLines = "Pokaż linie triangulacji";
+        public const string ColorInterpolation = "Włącz tryb interpolacji kolorów";
+        public const string VectorInterpolation = "Włącz tryb interpolacji wektorów normalnych";
         public const string ChangeLightColor = "Zmień kolor źródła światła";
         public const string ShowTrack = "Pokaż / ukryj trajektorię poruszania się światła";
         public const string ResetPosition = "Resetuj położenie źródła światła do punktu początkowego";

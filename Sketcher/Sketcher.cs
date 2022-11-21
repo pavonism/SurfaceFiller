@@ -22,11 +22,13 @@ namespace SketcherControl
         /// Czy użytkownik przesuwa myszką źródło światłą?
         /// </summary>
         private bool lightIsMoving;
+        private float objectScale;
 
         public int RenderThreads { get; set; }
         public LightSource LightSource { get; }
         public ColorPicker ColorPicker { get; }
         public bool Fill { get; set; } = true;
+        public SizeF ObjectSize{ get; set; }
 
         public Size BitmpapSize
         {
@@ -74,6 +76,9 @@ namespace SketcherControl
         public void LoadObject(string shapeObject)
         {
             this.triangles.Clear();
+            PointF minPoint = new(float.MaxValue, float.MaxValue);
+            PointF maxPoint = new(float.MinValue, float.MinValue);
+            LightSource.MinZ = float.MinValue;
             List<Vertex> vertices = new List<Vertex>();
             List<Vector> normalVectors = new List<Vector>();
 
@@ -82,7 +87,22 @@ namespace SketcherControl
             foreach (var line in lines.Where((line) => line.StartsWith("v ")))
             {
                 var values = line.Split(" ");
-                vertices.Add(new Vertex(float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
+                var x = float.Parse(values[1]);
+                var y = float.Parse(values[2]);
+                var z = float.Parse(values[3]);
+                vertices.Add(new Vertex(x, y, z));
+
+                if (z > LightSource.MinZ)
+                    LightSource.MinZ = z;
+
+                if(x > maxPoint.X)
+                    maxPoint.X = x;
+                if (x < minPoint.X)
+                    minPoint.X = x;
+                if (y > maxPoint.Y)
+                    maxPoint.Y = y;
+                if (y < minPoint.Y)
+                    minPoint.Y = y;
             }
 
             foreach (var line in lines.Where((line) => line.StartsWith("vn")))
@@ -107,6 +127,8 @@ namespace SketcherControl
                 triangle = new();
             }
 
+            ObjectSize = new(Math.Abs(maxPoint.X - minPoint.X), Math.Abs(maxPoint.Y - minPoint.Y));
+            CalculateObjectScale();
             SetRenderScale();
             Refresh();
         }
@@ -176,6 +198,7 @@ namespace SketcherControl
         {
             this.resizeTimer.Stop();
             BitmpapSize = new Size(this.Width, this.Height);
+            CalculateObjectScale();
             SetRenderScale();
             this.LightSource.LightAnimation = this.wasAnimationTurnedOn;
             this.freeze = false;
@@ -197,11 +220,16 @@ namespace SketcherControl
             this.resizeTimer.Start();
         }
 
+        private void CalculateObjectScale()
+        {
+            this.objectScale = 0.8f * Math.Min(canvas.Width, canvas.Height) / Math.Max(ObjectSize.Width, ObjectSize.Height);
+        }
+
         private void SetRenderScale()
         {
             foreach (var triangle in triangles)
             {
-                triangle.SetRenderScale((float)Math.Min(canvas.Width, canvas.Height) / 3, (float)canvas.Width / 2, (float)canvas.Height / 2);
+                triangle.SetRenderScale(this.objectScale, (float)canvas.Width / 2, (float)canvas.Height / 2);
             }
         }
 
@@ -209,8 +237,8 @@ namespace SketcherControl
         {
             return new Vector()
             {
-                X = (x - (float)canvas.Width / 2) / ((float)Math.Min(canvas.Width, canvas.Height) / 3),
-                Y = (y - (float)canvas.Height / 2) / ((float)Math.Min(canvas.Width, canvas.Height) / 3),
+                X = (x - (float)canvas.Width / 2) / this.objectScale,
+                Y = (y - (float)canvas.Height / 2) / this.objectScale,
                 Z = z,
             };
         }
