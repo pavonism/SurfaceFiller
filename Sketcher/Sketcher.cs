@@ -27,6 +27,7 @@ namespace SketcherControl
         public int RenderThreads { get; set; }
         public LightSource LightSource { get; }
         public ColorPicker ColorPicker { get; }
+        public Cloud Cloud { get; }
         public bool Fill { get; set; } = true;
         public SizeF ObjectSize{ get; set; }
 
@@ -48,6 +49,7 @@ namespace SketcherControl
         {
             LightSource = new(this);
             ColorPicker = new(LightSource);
+            Cloud = new(this, LightSource);
             this.canvas = new DirectBitmap(this.Width, this.Height);
             this.Dock = DockStyle.Fill;
 
@@ -57,6 +59,7 @@ namespace SketcherControl
             this.resizeTimer.Tick += ResizeTimerHandler;
             LightSource.LightSourceChanged += ParametersChangedHandler;
             ColorPicker.ParametersChanged += ParametersChangedHandler;
+            Cloud.PropertyChanged += ParametersChangedHandler;
         }
 
         #region Loading Object
@@ -189,6 +192,8 @@ namespace SketcherControl
                     triangle.Render(this.canvas);
                 }
 
+            Cloud.RenderShade(this.canvas);
+            Cloud.Render(this.canvas);
             LightSource.Render(this.canvas);
 
             base.Refresh();

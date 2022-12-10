@@ -25,7 +25,7 @@ namespace SurfaceFiller
     public static class FormConstants
     {
         public const int MinimumWindowSizeX = 700;
-        public const int MinimumWindowSizeY = 750;
+        public const int MinimumWindowSizeY = 800;
 
         public const int InitialWindowSizeX = 900;
         public const int InitialWindowSizeY = 750;

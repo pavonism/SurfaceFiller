@@ -2,14 +2,14 @@
 
 namespace SketcherControl.Shapes
 {
-    public abstract class Polygon
+    public class Polygon
     {
-        public Vertex[] Vertices { get; protected set; } = new Vertex[0];
+        public Vertex[] Vertices { get; set; } = new Vertex[0];
         protected readonly List<Edge> edges = new();
 
         public int VertexCount { get; protected set; }
         public int EdgesCount => this.edges.Count;
-        public IEnumerable<Edge> Edges => this.edges;
+        public List<Edge> Edges => this.edges;
 
         public readonly Dictionary<(int, int), float[]> CoefficientsCache = new();
         public readonly Dictionary<(int, int), Vector> NormalVectorsCache = new();
@@ -29,6 +29,35 @@ namespace SketcherControl.Shapes
 
             max = new Point((int)Math.Ceiling(maxPoint.X), (int)Math.Ceiling(maxPoint.Y));
             min = new Point((int)minPoint.X, (int)minPoint.Y);
+        }
+
+        public Polygon()
+        {
+        }
+
+        public Polygon(Polygon polygon)
+        {
+            Vertices = new Vertex[polygon.Vertices.Length];
+
+            for (int i = 0; i < polygon.Vertices.Length; i++)
+            {
+                Vertices[i] = new Vertex(polygon.Vertices[i].RenderX, polygon.Vertices[i].RenderY, polygon.Vertices[i].Location.Z);
+            }
+
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Edges.Add(new Edge(Vertices[i], Vertices[(i + 1) % Vertices.Length]));
+
+            }
+        }
+
+        public void Shift(float dx, float dy)
+        {
+            foreach (var vertex in Vertices)
+            {
+                vertex.RenderX += dx;
+                vertex.RenderY += dy;
+            }
         }
     }
 }

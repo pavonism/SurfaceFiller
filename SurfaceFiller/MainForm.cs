@@ -62,10 +62,26 @@ namespace SurfaceFiller
             this.toolbar.AddButton(LoadTextureHandlar, Glyphs.File, Hints.LoadObjectPattern);
             this.normalMapCombo = this.toolbar.AddComboImagePicker<Sample>(NormalMapPickedHandler);
             this.toolbar.AddButton(VectorMapHandler, Glyphs.File, Hints.LoadNormalMap);
+
+            this.toolbar.AddDivider();
+            this.toolbar.AddOption(CloudOptionHandler, "Chmura");
+            this.toolbar.AddSpacing();
+            this.toolbar.AddSlider(CloudZLocationHandler, "Z");
+        }
+
+        private void CloudZLocationHandler(float obj)
+        {
+            this.sketcher.Cloud.CloudZ = (this.sketcher.LightSource.Location.Z - this.sketcher.LightSource.MinZ) * obj;
+        }
+
+        private void CloudOptionHandler(object? sender, EventArgs e)
+        {
+            this.sketcher.Cloud.Hide = !this.sketcher.Cloud.Hide;
         }
 
         private void InitializeForm()
         {
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             this.Text = Resources.ProgramTitle;
             this.MinimumSize = new Size(FormConstants.MinimumWindowSizeX, FormConstants.MinimumWindowSizeY);
             this.Size = new Size(FormConstants.InitialWindowSizeX, FormConstants.InitialWindowSizeY);

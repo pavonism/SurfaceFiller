@@ -9,8 +9,8 @@ namespace SketcherControl.Shapes
         public Vector NormalVector { get; set; }
         public Vector RenderLocation => new Vector(RenderX, RenderY, 0);
 
-        public float RenderX { get; private set; }
-        public float RenderY { get; private set; }
+        public float RenderX { get; set; }
+        public float RenderY { get; set; }
         public Color Color { get; set; }
 
         public event Action? RenderCoordinatesChanged;
